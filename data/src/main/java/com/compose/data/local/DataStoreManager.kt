@@ -1,16 +1,16 @@
 package com.compose.data.local
-import android.content.Context
+
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.preferencesDataStore
 import com.compose.domain.entities.User
 import kotlinx.coroutines.flow.first
 
-private val Context.dataStore by preferencesDataStore(PreferenceDataStoreConstants.DATASTORE_NAME)
+class DataStoreManager(private val dataStore: DataStore<Preferences>) {
 
-class DataStoreManager(private val context: Context) {
-
+    // Cache user details into DataStore
     suspend fun cacheUser(user: User) {
-        context.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences[PreferenceDataStoreConstants.USER_ID] = user.userId
             preferences[PreferenceDataStoreConstants.USERNAME] = user.username
             preferences[PreferenceDataStoreConstants.USER_EMAIL] = user.email
@@ -19,8 +19,9 @@ class DataStoreManager(private val context: Context) {
         }
     }
 
+    // Clear user details from DataStore
     suspend fun clearUser() {
-        context.dataStore.edit { preferences ->
+        dataStore.edit { preferences ->
             preferences.remove(PreferenceDataStoreConstants.USER_ID)
             preferences.remove(PreferenceDataStoreConstants.USERNAME)
             preferences.remove(PreferenceDataStoreConstants.USER_EMAIL)
@@ -28,23 +29,22 @@ class DataStoreManager(private val context: Context) {
             preferences.remove(PreferenceDataStoreConstants.USER_PROFILE_PIC)
         }
     }
+
+    // Retrieve user details from DataStore
     suspend fun getUser(): User? {
-        val preferences = context.dataStore.data.first()
-        val userId = preferences[PreferenceDataStoreConstants.USER_ID] ?: ""
-        val username = preferences[PreferenceDataStoreConstants.USERNAME] ?: ""
-        val email = preferences[PreferenceDataStoreConstants.USER_EMAIL] ?: ""
-        val password = preferences[PreferenceDataStoreConstants.USER_PASSWORD] ?: ""
+        val preferences = dataStore.data.first()
+        val userId = preferences[PreferenceDataStoreConstants.USER_ID] ?: return null
+        val username = preferences[PreferenceDataStoreConstants.USERNAME] ?: return null
+        val email = preferences[PreferenceDataStoreConstants.USER_EMAIL] ?: return null
+        val password = preferences[PreferenceDataStoreConstants.USER_PASSWORD] ?: return null
         val profilePic = preferences[PreferenceDataStoreConstants.USER_PROFILE_PIC] ?: ""
-        return if (userId.isNotEmpty() && username.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
-            User(
-                userId = userId,
-                username = username,
-                email = email,
-                password = password,
-                profilePictureUrl = profilePic
-            )
-        } else {
-            null
-        }
+
+        return User(
+            userId = userId,
+            username = username,
+            email = email,
+            password = password,
+            profilePictureUrl = profilePic
+        )
     }
 }

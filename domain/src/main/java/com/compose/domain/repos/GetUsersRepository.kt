@@ -4,6 +4,6 @@ import com.compose.domain.entities.User
 import kotlinx.coroutines.flow.Flow
 
 interface GetUsersRepository {
-    suspend fun searchUsers(searchQuery:String, homeUserId:String):Flow<List<User>>
+    fun searchUsers(searchQuery:String, homeUserId:String):Flow<List<User>>
     fun getUserById(userId:String): Flow<User?>
 }

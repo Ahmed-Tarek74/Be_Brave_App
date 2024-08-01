@@ -58,8 +58,6 @@ class NotificationService : FirebaseMessagingService() {
             Log.e("NotificationService", "Missing notification data: $notificationData")
         }
     }
-
-
     @SuppressLint("MissingPermission")
     private fun showNotification(
         title: String,
