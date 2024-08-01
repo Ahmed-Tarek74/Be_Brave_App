@@ -111,12 +111,11 @@ dependencies {
     implementation (libs.converter.gson)
     // OK HTTP
     implementation (libs.okhttp)
-
+    //Data Store Preference
+    implementation(libs.androidx.datastore.preferences)
     // Logging Interceptor
     implementation (libs.logging.interceptor)
-
     implementation(project(":domain"))
     implementation(project(":data"))
-    implementation(kotlin("script-runtime"))
 }
 apply(plugin = "com.google.gms.google-services")

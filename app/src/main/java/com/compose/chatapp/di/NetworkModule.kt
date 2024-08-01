@@ -1,6 +1,5 @@
 package com.compose.chatapp.di
 
-import android.content.Context
 import com.compose.data.remote.AuthInterceptor
 import com.compose.data.remote.Constants.BASE_URL
 import com.compose.data.remote.FcmApi
@@ -8,7 +7,6 @@ import com.compose.data.utils.FcmServiceUtil
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -20,13 +18,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-
-    @Provides
-    @Singleton
-    fun provideFcmServiceUtil(@ApplicationContext context: Context): FcmServiceUtil {
-        return FcmServiceUtil(context)
-    }
-
 
     @Singleton
     @Provides

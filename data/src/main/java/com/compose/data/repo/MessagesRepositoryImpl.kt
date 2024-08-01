@@ -52,7 +52,6 @@ class MessagesRepositoryImpl(
         messagesRef.addValueEventListener(listener)
         awaitClose { messagesRef.removeEventListener(listener) }
     }
-
     private fun getChatId(homeUserId: String, awayUserId: String): String {
         return if (homeUserId < awayUserId) "$homeUserId-$awayUserId" else "$awayUserId-$homeUserId"
     }

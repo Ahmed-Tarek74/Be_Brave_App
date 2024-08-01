@@ -31,7 +31,6 @@ class DeviceTokenRepositoryImpl(
             emit(null)
         }
     }
-
     private suspend fun saveDeviceTokenToDatabase(userId: String, token: String) {
         database.reference.child("user_tokens").child(userId).setValue(token).await()
     }

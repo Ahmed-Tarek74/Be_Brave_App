@@ -1,7 +1,12 @@
 package com.compose.chatapp.di
 
 import android.content.Context
+import android.content.res.AssetManager
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.compose.data.local.DataStoreManager
+import com.compose.data.local.PreferenceDataStoreConstants
 import com.compose.data.remote.FcmApi
 import com.compose.data.repo.AuthRepositoryImpl
 import com.compose.data.repo.MessagesRepositoryImpl
@@ -12,6 +17,7 @@ import com.compose.data.repo.RecentChatsRepositoryImpl
 import com.compose.data.repo.UserPreferencesRepositoryImpl
 import com.compose.data.services.ITokenService
 import com.compose.data.services.TokenService
+import com.compose.data.utils.FcmServiceUtil
 import com.compose.domain.repos.AuthRepository
 import com.compose.domain.repos.MessagesRepository
 import com.compose.domain.repos.DeviceTokenRepository
@@ -28,6 +34,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+private val Context.dataStore by preferencesDataStore(PreferenceDataStoreConstants.DATASTORE_NAME)
+
 @Module
 @InstallIn(SingletonComponent::class)
 object RepoModule {
@@ -40,13 +48,27 @@ object RepoModule {
     fun provideFirebaseDatabase(): FirebaseDatabase {
         return FirebaseDatabase.getInstance()
     }
-
-    @Singleton
     @Provides
-    fun provideUserDataStore(@ApplicationContext context: Context): DataStoreManager {
-        return DataStoreManager(context)
+    @Singleton
+    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return context.dataStore
+    }
+    @Provides
+    @Singleton
+    fun provideAssetManager(@ApplicationContext context: Context): AssetManager {
+        return context.assets
+    }
+    @Provides
+    @Singleton
+    fun provideFcmServiceUtil(assetManager: AssetManager): FcmServiceUtil {
+        return FcmServiceUtil(assetManager)
     }
 
+    @Provides
+    @Singleton
+    fun provideDataStoreManager(dataStore: DataStore<Preferences>): DataStoreManager {
+        return DataStoreManager(dataStore)
+    }
     @Provides
     @Singleton
     fun provideAuthRepository(
