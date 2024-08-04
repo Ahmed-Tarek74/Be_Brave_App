@@ -2,11 +2,9 @@ package com.compose.domain.usecases
 
 import com.compose.domain.entities.User
 import com.compose.domain.repos.GetUsersRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
 
 class GetUsersUseCase(private val getUsersRepository: GetUsersRepository) {
 

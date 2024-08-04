@@ -8,7 +8,6 @@ import com.compose.domain.entities.User
 import com.compose.domain.repos.DeviceTokenRepository
 import com.compose.domain.repos.NotificationRepository
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 
 class SendNotificationUseCase(

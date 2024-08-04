@@ -4,10 +4,8 @@ import com.compose.domain.entities.User
 import com.compose.domain.repos.AuthRepository
 import com.compose.domain.repos.DeviceTokenRepository
 import com.compose.domain.repos.UserPreferencesRepository
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
 
 class LoginUseCase(
     private val authRepository: AuthRepository,

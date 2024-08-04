@@ -1,6 +1,5 @@
 package com.compose.domain.repos
 
-import com.compose.domain.entities.Message
 import com.compose.domain.entities.RecentChat
 import com.compose.domain.entities.User
 import kotlinx.coroutines.flow.Flow

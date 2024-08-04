@@ -14,7 +14,8 @@ class SendMessageUseCase(
     suspend operator fun invoke(message: Message, homeUser: User, awayUser: User) {
         withContext(Dispatchers.IO) {
             try {
-                messagesRepository.sendMessage(message).collect { sendResult ->
+                val chatId = getChatId(message.senderId, message.receiverId)
+                messagesRepository.sendMessage(message,chatId).collect { sendResult ->
                     if (sendResult.isSuccess) {
                         // Update recent chats
                         updateRecentChats(message, homeUser, awayUser)
@@ -41,6 +42,9 @@ class SendMessageUseCase(
         } catch (e: Exception) {
             Log.w(TAG, "Failed to update recent chats for sender: ${e.message}", e)
         }
+    }
+    private fun getChatId(homeUserId: String, awayUserId: String): String {
+        return if (homeUserId < awayUserId) "$homeUserId-$awayUserId" else "$awayUserId-$homeUserId"
     }
     companion object {
         const val TAG = "SendMessageUseCase"
