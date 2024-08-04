@@ -46,6 +46,7 @@ android {
     }
 }
 dependencies {
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -57,13 +58,13 @@ dependencies {
     implementation(libs.firebase.auth.ktx)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.database)
-    implementation(project(":domain"))
     // Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     //Data Store Preference
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.google.auth.library.oauth2.http)
+    implementation(project(":domain"))
 
 
 }

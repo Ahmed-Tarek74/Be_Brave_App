@@ -3,12 +3,8 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
-    //google services
-    id("com.google.gms.google-services")
-    //Crashlytics Gradle plugin
-    id("com.google.firebase.crashlytics")
-    //Navigation Component
-    id("androidx.navigation.safeargs.kotlin")
+    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 
 }
 
@@ -69,15 +65,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.androidx.ui)
-    implementation(libs.androidx.ui.graphics)
-    implementation(libs.androidx.ui.tooling.preview)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.constraintlayout.compose)
-    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.room.ktx)
-    implementation(libs.firebase.messaging.ktx)
-    implementation(libs.firebase.messaging)
+    implementation(libs.androidx.material3.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -88,17 +77,13 @@ dependencies {
     //Dagger Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-    // navigation_Component
-    implementation(libs.androidx.navigation.fragment.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.navigation.dynamic.features.fragment)
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.analytics)
     implementation(libs.google.firebase.database)
     implementation(libs.firebase.messaging.ktx)
+    implementation(libs.firebase.messaging)
 
     //Coil
     implementation(libs.coil.compose)
@@ -117,5 +102,7 @@ dependencies {
     implementation (libs.logging.interceptor)
     implementation(project(":domain"))
     implementation(project(":data"))
+    implementation(project(":presentation"))
+
 }
-apply(plugin = "com.google.gms.google-services")
+apply(plugin = libs.plugins.google.gms.google.services.get().pluginId)

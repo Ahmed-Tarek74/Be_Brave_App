@@ -7,8 +7,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 
 class GetRecentMessagesUseCase(private val messagesRepository: MessagesRepository) {
-    suspend operator fun invoke(homeUserId:String, awayUserId:String): Flow<Result<List<Message>>> =
+    suspend operator fun invoke(
+        homeUserId: String,
+        awayUserId: String
+    ): Flow<Result<List<Message>>> =
         withContext(Dispatchers.IO) {
-            messagesRepository.getChatMessages(homeUserId, awayUserId)
+            val chatId = getChatId(homeUserId,awayUserId )
+            messagesRepository.getChatMessages(chatId)
         }
+    private fun getChatId(homeUserId: String, awayUserId: String): String {
+        return if (homeUserId < awayUserId) "$homeUserId-$awayUserId" else "$awayUserId-$homeUserId"
+    }
 }

@@ -25,8 +25,6 @@ class AuthRepositoryImpl(
 
             // Fetch user data from the database
             val loggedInUser = withContext(Dispatchers.IO) { fetchUserFromDatabase(userId) }
-
-
             // Emit success result
             emit(Result.success(loggedInUser))
         } catch (e: Exception) {

@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Be Brave App</string>
+    <string name="passwords_not_match_error">passwords do not match</string>
+    <string name="registration">REGISTRATION</string>
+    <string name="newAccountMsg">For new account</string>
+    <string name="defaultProfilePicture">default profile picture</string>
+    <string name="search">Search by username..</string>
+    <string name="searchIcon">search icon</string>
+    <string name="signingUp">Signing Up..</string>
+    <string name="signingIn">Signing In..</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="username">Username</string>
+    <string name="logout">Logout</string>
+    <string name="newChat">start new chat</string>
+    <string name="noResultFound">No result found for</string>
+    <string name="backToLogin">Back To Login</string>
+    <string name="typeMessage">Type a message</string>
+    <string name="sendIcon">send icon</string>
+    <string name="noRecentMessages">No recent messages</string>
+    <string name="noRecentChats">No recent chats</string>
+    <string name="arrowBack">Arrow Back</string>
+    <string name="error">Error</string>
+    <string name="backToHome">back to home</string>
+    <string name="default_notification_channel_id">default_channel_id</string>
+    <string name="chatting">BeBrave</string>
+    <string name="chattingAnimation">Chatting Animation</string>
+    <string name="signIn">Sign In</string>
+
+
+</resources>
