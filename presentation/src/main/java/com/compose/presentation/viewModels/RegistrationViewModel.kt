@@ -24,7 +24,7 @@ class RegistrationViewModel @Inject constructor(
     private val _state = MutableStateFlow(RegistrationViewState())
     val state: StateFlow<RegistrationViewState> = _state
 
-    private val _intent = MutableStateFlow<RegistrationIntent?>(null)
+    private val _intent = MutableSharedFlow<RegistrationIntent>()
 
     private val _event = MutableSharedFlow<NavigationEvent>()
     val event: SharedFlow<NavigationEvent> = _event
@@ -63,6 +63,7 @@ class RegistrationViewModel @Inject constructor(
         _state.value =
             _state.value.copy(isConfirmationPasswordVisible = !visibilityState)
     }
+
     private fun isFormValid(): Boolean {
         return _state.value.username.isNotEmpty() && _state.value.password.isNotEmpty()
                 && _state.value.confirmationPassword.isNotEmpty() && _state.value.email.isNotEmpty()
@@ -71,29 +72,29 @@ class RegistrationViewModel @Inject constructor(
     private fun processIntents() {
         viewModelScope.launch {
             _intent.collectLatest { intent ->
-                intent?.let {
-                    when (it) {
-                        is Register -> register()
-                        is NavigateToLogin -> {
-                            _event.emit(NavigationEvent.NavigateToLoginScreen)
-                        }
-                        is ConfirmationPasswordChanged -> onConfirmationPasswordChanged(it.confirmationPassword)
-                        is ConfirmationPasswordVisibilityChanged -> onConfirmationPasswordVisibilityChanged(
-                            it.currentVisibility
-                        )
 
-                        is EmailChanged -> onEmailChanged(it.email)
-                        is PasswordChanged -> onPasswordChanged(it.password)
-                        is PasswordVisibilityChanged -> onPasswordVisibilityChanged(it.currentVisibility)
-                        is UsernameChanged -> onUsernameChanged(it.username)
+                when (intent) {
+                    is Register -> register()
+                    is NavigateToLogin -> {
+                        _event.emit(NavigationEvent.NavigateToLoginScreen)
                     }
+                    is ConfirmationPasswordChanged -> onConfirmationPasswordChanged(intent.confirmationPassword)
+                    is ConfirmationPasswordVisibilityChanged -> onConfirmationPasswordVisibilityChanged(
+                        intent.currentVisibility
+                    )
+                    is EmailChanged -> onEmailChanged(intent.email)
+                    is PasswordChanged -> onPasswordChanged(intent.password)
+                    is PasswordVisibilityChanged -> onPasswordVisibilityChanged(intent.currentVisibility)
+                    is UsernameChanged -> onUsernameChanged(intent.username)
                 }
             }
         }
     }
 
     fun setIntent(intent: RegistrationIntent) {
-        _intent.value = intent
+        viewModelScope.launch {
+            _intent.emit(intent)
+        }
     }
 
     private fun register() {
@@ -106,7 +107,7 @@ class RegistrationViewModel @Inject constructor(
         viewModelScope.launch {
             try {
 
-                registrationUseCase(user,_state.value.confirmationPassword).collect { result ->
+                registrationUseCase(user, _state.value.confirmationPassword).collect { result ->
                     _state.value = _state.value.copy(isLoading = false)
                     if (result.isSuccess) {
                         _state.value = _state.value.copy(isSuccess = true)

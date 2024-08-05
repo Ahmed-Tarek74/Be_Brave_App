@@ -22,7 +22,7 @@ class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
 ) : ViewModel() {
 
-    private val _intent = MutableStateFlow<LoginIntent?>(null)
+    private val _intent = MutableSharedFlow<LoginIntent>()
 
     private val _viewState = MutableStateFlow(LoginViewState())
     val viewState: StateFlow<LoginViewState> = _viewState
@@ -54,7 +54,9 @@ class LoginViewModel @Inject constructor(
     }
 
     fun setIntent(intent: LoginIntent) {
-        _intent.value = intent
+        viewModelScope.launch {
+            _intent.emit(intent)
+        }
     }
 
     private fun processIntents() {
@@ -83,7 +85,6 @@ class LoginViewModel @Inject constructor(
                 } else {
                     _viewState.value =
                         _viewState.value.copy(errorMessage = result.exceptionOrNull()?.message.toString())
-                    _intent.value = null
                 }
             }
         } catch (e: Exception) {
