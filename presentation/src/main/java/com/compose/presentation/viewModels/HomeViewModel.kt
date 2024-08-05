@@ -66,7 +66,7 @@ class HomeViewModel @Inject constructor(
                 )
                 is StartNewChat -> _event.emit(NavigateToSearchScreen(homeUser!!))
                 is LoggedOut -> {
-                    performLogout()
+                    logout()
                 }
             }
         }
@@ -89,7 +89,7 @@ class HomeViewModel @Inject constructor(
     fun formatDate(date:Long):String{
         return dateFormatterUseCase(date)
     }
-    private suspend fun performLogout() {
+    private suspend fun logout() {
             try {
                 logOutUseCase()
                 _event.emit(NavigateToLoginScreen)

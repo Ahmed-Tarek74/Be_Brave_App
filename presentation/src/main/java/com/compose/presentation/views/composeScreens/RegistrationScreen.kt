@@ -41,7 +41,7 @@ fun RegistrationScreen(
             .padding(16.dp)
     ) {
         IconButton(
-            onClick = { setIntent(NavigateToLogin()) },
+            onClick = { setIntent(NavigateToLogin) },
             modifier = Modifier.align(Alignment.TopStart)
         ) {
             Icon(
