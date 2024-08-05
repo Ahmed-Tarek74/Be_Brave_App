@@ -1,4 +1,5 @@
 package com.compose.presentation.viewModels
+
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -32,7 +33,7 @@ class ChatViewModel @Inject constructor(
 
     private val _viewState = MutableStateFlow(ChatViewState())
     val viewState: StateFlow<ChatViewState> = _viewState
-    private val _intent = MutableStateFlow<ChatIntent?>(null)
+    private val _intent = MutableSharedFlow<ChatIntent>()
     private val _event = MutableSharedFlow<NavigationEvent>()
     val event: SharedFlow<NavigationEvent> = _event
     private val awayUser: User = savedStateHandle["awayUser"]!!
@@ -46,21 +47,19 @@ class ChatViewModel @Inject constructor(
     private fun processIntent() {
         viewModelScope.launch {
             _intent.collectLatest { intent ->
-                intent?.let {
-                    when (it) {
-                        is BackToHome -> _event.emit(NavigationEvent.NavigateToHome(homeUser))
-                        is MessageInputChanged -> onMessageInputChanged(it.messageInput)
-                        is SendMessage -> sendMessage(it.message)
-                    }
+                when (intent) {
+                    is BackToHome -> _event.emit(NavigationEvent.NavigateToHome(homeUser))
+                    is MessageInputChanged -> onMessageInputChanged(intent.messageInput)
+                    is SendMessage -> sendMessage(intent.message)
                 }
             }
         }
     }
-
     fun setIntent(intent: ChatIntent) {
-        _intent.value = intent
+        viewModelScope.launch {
+            _intent.emit(intent)
+        }
     }
-
     private fun onMessageInputChanged(message: String) {
         if (message.isNotEmpty())
             _viewState.value = _viewState.value.copy(message = message, isSendEnabled = true)

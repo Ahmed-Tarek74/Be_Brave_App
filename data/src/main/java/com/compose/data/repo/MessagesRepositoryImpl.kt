@@ -39,7 +39,6 @@ class MessagesRepositoryImpl(
                 val messages = snapshot.children.mapNotNull { it.getValue(Message::class.java) }
                 trySend(Result.success(messages))
             }
-
             override fun onCancelled(error: DatabaseError) {
                 Log.e(TAG, "Failed to get chat messages: ${error.message}", error.toException())
                 trySend(Result.failure(error.toException()))

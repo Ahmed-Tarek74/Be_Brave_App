@@ -1,4 +1,5 @@
 package com.compose.presentation.viewModels
+
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -29,7 +30,7 @@ class HomeViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _intent = MutableStateFlow<HomeIntent>(LoadRecentChats)
+    private val _intent = MutableSharedFlow<HomeIntent>()
     private val _viewState = MutableStateFlow<HomeViewState>(Loading)
     private val _event = MutableSharedFlow<NavigationEvent>()
 
@@ -39,11 +40,17 @@ class HomeViewModel @Inject constructor(
     private var homeUser: User? = savedStateHandle["homeUser"]!!
 
     init {
+        viewModelScope.launch {
+            loadRecentChats()
+        }
         processIntents()
     }
 
     fun setIntent(intent: HomeIntent) {
-        _intent.value = intent
+        viewModelScope.launch {
+            _intent.emit(intent)
+
+        }
     }
 
     private fun processIntents() {
@@ -57,7 +64,6 @@ class HomeViewModel @Inject constructor(
     private fun handleIntent(intent: HomeIntent) {
         viewModelScope.launch {
             when (intent) {
-                is LoadRecentChats -> loadRecentChats()
                 is SelectRecentChat -> _event.emit(
                     NavigateToChattingScreen(
                         homeUser = homeUser!!,
@@ -86,16 +92,18 @@ class HomeViewModel @Inject constructor(
             _viewState.value = Failure(e.message ?: "Error fetching recent chats")
         }
     }
-    fun formatDate(date:Long):String{
+
+    fun formatDate(date: Long): String {
         return dateFormatterUseCase(date)
     }
+
     private suspend fun logout() {
-            try {
-                logOutUseCase()
-                _event.emit(NavigateToLoginScreen)
-            } catch (e: Exception) {
-                _viewState.value = Failure(e.message ?: "Logout failed")
-            }
+        try {
+            logOutUseCase()
+            _event.emit(NavigateToLoginScreen)
+        } catch (e: Exception) {
+            _viewState.value = Failure(e.message ?: "Logout failed")
+        }
 
     }
 }

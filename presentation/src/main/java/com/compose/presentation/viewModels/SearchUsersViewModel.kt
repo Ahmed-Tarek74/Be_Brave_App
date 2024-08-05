@@ -29,7 +29,7 @@ class SearchUsersViewModel @Inject constructor(
     val viewState: StateFlow<SearchUsersViewState> = _viewState
     private val _event = MutableSharedFlow<NavigationEvent>()
     val event: SharedFlow<NavigationEvent> = _event
-    private val _intent = MutableStateFlow<SearchUsersIntent?>(null)
+    private val _intent = MutableSharedFlow<SearchUsersIntent>()
     private var homeUser: User = savedStateHandle["homeUser"]!!
 
     init {
@@ -43,31 +43,38 @@ class SearchUsersViewModel @Inject constructor(
     private fun processIntents() {
         viewModelScope.launch {
             _intent.collectLatest { intent ->
-                intent?.let {
-                    when (it) {
-                        is UpdateSearchQuery -> {
-                            onQueryChanged(it.searchQuery)
-                            searchUsers(it.searchQuery,homeUser.userId)
-                        }
-                        is SelectUser -> {
-                            _event.emit(NavigateToChattingScreen(homeUser = homeUser, awayUser = it.user))
-                        }
-                        is BackToHome -> _event.emit(NavigateToHome(homeUser))
+
+                when (intent) {
+                    is UpdateSearchQuery -> {
+                        onQueryChanged(intent.searchQuery)
+                        searchUsers(intent.searchQuery, homeUser.userId)
                     }
+                    is SelectUser -> {
+                        _event.emit(
+                            NavigateToChattingScreen(
+                                homeUser = homeUser,
+                                awayUser = intent.user
+                            )
+                        )
+                    }
+
+                    is BackToHome -> _event.emit(NavigateToHome(homeUser))
                 }
+
             }
         }
     }
+
     fun setIntent(intent: SearchUsersIntent) {
         viewModelScope.launch {
-            _intent.value = intent
+            _intent.emit(intent)
         }
     }
 
     private suspend fun searchUsers(query: String, userId: String) {
         _viewState.value =
             _viewState.value.copy(isLoading = true, errorMsg = null, emptyListErrorMsg = null)
-        getUsersUseCase.searchUsers(query,userId).collect { result ->
+        getUsersUseCase.searchUsers(query, userId).collect { result ->
             _viewState.value = _viewState.value.copy(isLoading = false)
             if (result.isSuccess) {
                 if (result.getOrNull().isNullOrEmpty()) {
