@@ -12,11 +12,10 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
-import com.compose.presentation.events.NavigationEvent
+import com.compose.presentation.events.StartDestinationEvent.*
 import com.compose.presentation.intents.NotificationPermissionCommand.*
 import com.compose.presentation.viewModels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
-
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
@@ -42,7 +41,7 @@ class MainActivity : FragmentActivity() {
         lifecycleScope.launchWhenStarted {
             mainViewModel.navigationCommand.collect { command ->
                 val graph = navController.navInflater.inflate(R.navigation.nav_graph)
-                if (command is NavigationEvent.To) {
+                if (command is To) {
                     graph.setStartDestination(command.destination)
                     navController.setGraph(graph, command.args)
                 }

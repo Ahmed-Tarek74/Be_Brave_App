@@ -1,10 +1,13 @@
 package com.compose.presentation.viewModels
 
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compose.domain.entities.User
 import com.compose.domain.usecases.RegistrationUseCase
-import com.compose.presentation.events.NavigationEvent
+import com.compose.presentation.R
+import com.compose.presentation.events.HomeEvent
 import com.compose.presentation.intents.RegistrationIntent
 import com.compose.presentation.intents.RegistrationIntent.*
 import com.compose.presentation.viewStates.RegistrationViewState
@@ -26,8 +29,8 @@ class RegistrationViewModel @Inject constructor(
 
     private val _intent = MutableSharedFlow<RegistrationIntent>()
 
-    private val _event = MutableSharedFlow<NavigationEvent>()
-    val event: SharedFlow<NavigationEvent> = _event
+    private val _event = MutableSharedFlow<HomeEvent>()
+    val event: SharedFlow<HomeEvent> = _event
 
     init {
         processIntents()
@@ -56,12 +59,17 @@ class RegistrationViewModel @Inject constructor(
     private fun onPasswordVisibilityChanged(visibilityState: Boolean) {
         _state.value =
             _state.value.copy(isPasswordVisible = !visibilityState)
+        updatePasswordVisibilityState(isPasswordVisible = _state.value.isPasswordVisible)
     }
 
 
     private fun onConfirmationPasswordVisibilityChanged(visibilityState: Boolean) {
         _state.value =
             _state.value.copy(isConfirmationPasswordVisible = !visibilityState)
+        updatePasswordVisibilityState(
+            isPasswordVisible = _state.value.isConfirmationPasswordVisible,
+            isConfirmationPassword = true
+        )
     }
 
     private fun isFormValid(): Boolean {
@@ -76,12 +84,14 @@ class RegistrationViewModel @Inject constructor(
                 when (intent) {
                     is Register -> register()
                     is NavigateToLogin -> {
-                        _event.emit(NavigationEvent.NavigateToLoginScreen)
+                        _event.emit(HomeEvent.NavigateToLoginScreen)
                     }
+
                     is ConfirmationPasswordChanged -> onConfirmationPasswordChanged(intent.confirmationPassword)
                     is ConfirmationPasswordVisibilityChanged -> onConfirmationPasswordVisibilityChanged(
                         intent.currentVisibility
                     )
+
                     is EmailChanged -> onEmailChanged(intent.email)
                     is PasswordChanged -> onPasswordChanged(intent.password)
                     is PasswordVisibilityChanged -> onPasswordVisibilityChanged(intent.currentVisibility)
@@ -111,7 +121,7 @@ class RegistrationViewModel @Inject constructor(
                     _state.value = _state.value.copy(isLoading = false)
                     if (result.isSuccess) {
                         _state.value = _state.value.copy(isSuccess = true)
-                        val navigateToLogin = NavigationEvent.NavigateToLoginScreen
+                        val navigateToLogin = HomeEvent.NavigateToLoginScreen
                         _event.emit(navigateToLogin)
                     } else {
                         _state.value = _state.value.copy(
@@ -128,6 +138,25 @@ class RegistrationViewModel @Inject constructor(
                     isSuccess = false
                 )
             }
+        }
+    }
+
+    private fun updatePasswordVisibilityState(
+        isPasswordVisible: Boolean,
+        isConfirmationPassword: Boolean = false
+    ) {
+        if (!isConfirmationPassword) {
+            _state.value = _state.value.copy(
+                passwordVisualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                passwordTrailingIcon = if (isPasswordVisible) R.drawable.baseline_visibility_24 else R.drawable.baseline_visibility_off_24,
+                passwordIconDescription = if (isPasswordVisible) R.string.show_password else R.string.hide_password
+            )
+        } else {
+            _state.value = _state.value.copy(
+                confirmationPasswordVisualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                confirmationPasswordTrailingIcon = if (isPasswordVisible) R.drawable.baseline_visibility_24 else R.drawable.baseline_visibility_off_24,
+                confirmationPasswordIconDescription = if (isPasswordVisible) R.string.show_password else R.string.hide_password
+            )
         }
     }
 }

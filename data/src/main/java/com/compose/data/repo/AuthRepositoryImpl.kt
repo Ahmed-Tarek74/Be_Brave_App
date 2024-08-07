@@ -16,11 +16,11 @@ class AuthRepositoryImpl(
     private val database: FirebaseDatabase
 ) : AuthRepository {
 
-    override fun login(user: User): Flow<Result<User>> = flow {
+    override fun login(email: String, password: String): Flow<Result<User>> = flow {
         try {
             // Sign in with email and password
             val authResult =
-                firebaseAuth.signInWithEmailAndPassword(user.email, user.password).await()
+                firebaseAuth.signInWithEmailAndPassword(email,password).await()
             val userId = authResult.user?.uid ?: throw Exception("User ID is null. Login failed.")
 
             // Fetch user data from the database

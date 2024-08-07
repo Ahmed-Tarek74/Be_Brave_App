@@ -26,6 +26,14 @@
     <string name="chatting">BeBrave</string>
     <string name="chattingAnimation">Chatting Animation</string>
     <string name="signIn">Sign In</string>
+    <string name="profile_picture_description">%1$s\'s profile picture</string>
+    <string name="user_profile_picture">%1$s\'s profile picture</string>
+    <string name="profile_picture">%1$s\'s profile picture</string>
+    <string name="show_password">Show password</string>
+    <string name="hide_password">Hide password</string>
+    <string name="no_result_found_for">%1$s %2$s</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="register">REGISTER</string>
 
 
 </resources>

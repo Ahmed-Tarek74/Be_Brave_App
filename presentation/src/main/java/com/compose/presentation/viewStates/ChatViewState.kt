@@ -1,11 +1,12 @@
 package com.compose.presentation.viewStates
-
-import com.compose.domain.entities.Message
+import com.compose.presentation.R
+import com.compose.presentation.models.MessageUiModel
 
 data class ChatViewState(
-    val messagesList: List<Message> = emptyList(),
+    val messagesList: List<MessageUiModel> = emptyList(),
     val message: String = "",
     val isSendEnabled: Boolean = false,
     val errorMsg: String = "",
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val sendBtnContainerColor :Int = R.color.gray1
 )

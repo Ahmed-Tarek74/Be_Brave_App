@@ -39,13 +39,12 @@ import com.compose.presentation.intents.ChatIntent
 import com.compose.presentation.viewStates.ChatViewState
 import com.compose.presentation.views.composables.ChatInput
 import com.compose.presentation.views.composables.ChatMessageItem
-import com.compose.domain.entities.User
+import com.compose.presentation.models.UserUiModel
 
 @Composable
 fun ChatScreen(
-    awayUser: User,
+    awayUser: UserUiModel,
     setIntent: (ChatIntent) -> Unit,
-    dateFormatter: (Long)->String,
     viewState: State<ChatViewState>
 ) {
     Column(modifier = Modifier.background(colorResource(id = R.color.gray))) {
@@ -54,7 +53,6 @@ fun ChatScreen(
                 .fillMaxWidth()
                 .background(colorResource(id = R.color.primary_dark_blue))
                 .padding(vertical = 10.dp),
-
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = { setIntent(ChatIntent.BackToHome) }) {
@@ -67,8 +65,11 @@ fun ChatScreen(
                 )
             }
             AsyncImage(
-                model = awayUser.profilePictureUrl.ifEmpty { R.drawable.default_profile_picture },
-                contentDescription = "${awayUser.username}'s profile picture",
+                model = awayUser.profilePicture,
+                contentDescription = stringResource(
+                    R.string.profile_picture_description,
+                    awayUser.username
+                ),
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
@@ -84,11 +85,12 @@ fun ChatScreen(
                 )
             }
         }
-        if (viewState.value.errorMsg.isNotEmpty()) {
-            Toast.makeText(LocalContext.current, viewState.value.errorMsg, Toast.LENGTH_LONG)
-                .show()
-        }
         when {
+            viewState.value.errorMsg.isNotEmpty() -> {
+                Toast.makeText(LocalContext.current, viewState.value.errorMsg, Toast.LENGTH_LONG)
+                    .show()
+            }
+
             viewState.value.isLoading -> {
                 Spacer(modifier = Modifier.weight(1f))
                 CircularProgressIndicator(
@@ -120,11 +122,7 @@ fun ChatScreen(
                         .weight(1f)
                 ) {
                     items(viewState.value.messagesList) { message ->
-                        ChatMessageItem(
-                            message = message,
-                            isCurrentUser = (awayUser.userId != message.senderId),
-                            dateFormatter={dateFormatter(message.timestamp)}
-                        )
+                        ChatMessageItem(message = message)
                     }
                 }
             }
@@ -133,7 +131,7 @@ fun ChatScreen(
             message = viewState.value.message,
             onSendMessage = { setIntent(ChatIntent.SendMessage(it)) },
             onMessageChanged = { setIntent(ChatIntent.MessageInputChanged(it)) },
-            isSendEnabled = viewState.value.isSendEnabled
+            sendBtnContainerColor = viewState.value.sendBtnContainerColor
         )
     }
 }

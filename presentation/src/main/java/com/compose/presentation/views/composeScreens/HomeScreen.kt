@@ -43,7 +43,6 @@ import com.compose.presentation.views.composables.RecentChatCard
 @Composable
 fun HomeScreen(
     setIntent: (HomeIntent) -> Unit,
-    dateFormatter:(Long)->String,
     viewState: State<HomeViewState>
 ) {
     Scaffold(
@@ -140,7 +139,6 @@ fun HomeScreen(
                                 items(recentChats) { recentChat ->
                                     RecentChatCard(
                                         recentChat,
-                                        dateFormatter={dateFormatter(recentChat.timestamp)},
                                         onChatSelected = { user ->
                                             setIntent(SelectRecentChat(user))
                                         })

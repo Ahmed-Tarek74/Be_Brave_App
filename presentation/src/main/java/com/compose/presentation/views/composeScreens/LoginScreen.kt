@@ -27,8 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,7 +36,6 @@ import com.compose.presentation.intents.LoginIntent.*
 import com.compose.presentation.viewStates.LoginViewState
 import com.compose.presentation.views.composables.ErrorMsgCard
 import com.compose.presentation.views.composables.LoadingDialog
-import com.compose.domain.entities.User
 
 
 @Composable
@@ -67,16 +64,13 @@ fun LoginScreen(
             onValueChange = { setIntent(PasswordChanged(it)) },
             maxLines = 1,
             label = { Text(stringResource(id = R.string.password)) },
-            visualTransformation = if (viewState.value.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            visualTransformation = viewState.value.passwordVisualTransformation,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             trailingIcon = {
-                val image = if (viewState.value.isPasswordVisible)
-                    painterResource(id = R.drawable.baseline_visibility_24)
-                else
-                    painterResource(id = R.drawable.baseline_visibility_off_24)
-                IconButton(onClick = { setIntent(PasswordVisibilityChanged(viewState.value.isPasswordVisible)) }) {
-                    val description =
-                        if (viewState.value.isPasswordVisible) "Show password" else "Hide password"
+                IconButton(onClick = { setIntent(PasswordVisibilityChanged(viewState.value.isPasswordVisible)) })
+                {
+                    val image = painterResource(id = viewState.value.passwordTrailingIcon)
+                    val description = stringResource(id = viewState.value.passwordIconDescription)
                     Icon(painter = image, contentDescription = description)
                 }
             },
@@ -84,24 +78,15 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .padding(top = 15.dp, bottom = 30.dp)
         )
-
         viewState.value.errorMessage?.let {
             ErrorMsgCard(errorMsg = it)
         }
-
         if (viewState.value.isLoading) {
-            LoadingDialog(loadingMsg = stringResource(id = R.string.signingIn)) {}
+            LoadingDialog(loadingMsg = stringResource(id = R.string.signingIn)){}
         }
         Button(
             onClick = {
-                setIntent(
-                    Login(
-                        User(
-                            email = viewState.value.email,
-                            password = viewState.value.password
-                        )
-                    )
-                )
+                setIntent(Login)
             },
             enabled = viewState.value.isLoginEnabled,
             shape = RoundedCornerShape(10.dp),

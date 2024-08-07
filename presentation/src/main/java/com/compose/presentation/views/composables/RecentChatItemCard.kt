@@ -22,18 +22,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.compose.presentation.R
-import com.compose.domain.entities.RecentChat
-import com.compose.domain.entities.User
+import com.compose.presentation.models.RecentChatUiModel
+import com.compose.presentation.models.UserUiModel
 
 @Composable
 fun RecentChatCard(
-    recentChat: RecentChat,
-    dateFormatter: (Long)->String,
-    onChatSelected: (User) -> Unit
+    recentChat: RecentChatUiModel,
+    onChatSelected: (UserUiModel) -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -53,8 +53,11 @@ fun RecentChatCard(
 
             ) {
             AsyncImage(
-                model = recentChat.awayUser.profilePictureUrl.ifEmpty { R.drawable.default_profile_picture },
-                contentDescription = "${recentChat.awayUser.username}'s profile picture",
+                model = recentChat.awayUser.profilePicture,
+                contentDescription = stringResource(
+                    R.string.user_profile_picture,
+                    recentChat.awayUser.username
+                ),
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
@@ -83,7 +86,7 @@ fun RecentChatCard(
                 )
             }
             Text(
-                text = dateFormatter(recentChat.timestamp),
+                text = recentChat.timestamp,
                 color = colorResource(id = R.color.gray2),
                 style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier

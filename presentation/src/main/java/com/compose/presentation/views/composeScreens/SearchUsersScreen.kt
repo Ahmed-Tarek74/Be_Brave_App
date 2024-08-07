@@ -52,7 +52,11 @@ fun SearchUsersScreen(
 
             viewState.value.emptyListErrorMsg != null -> {
                 Text(
-                    text = ("${stringResource(id = R.string.noResultFound)} ${viewState.value.searchQuery}"),
+                    text = (stringResource(
+                        R.string.no_result_found_for,
+                        stringResource(id = R.string.noResultFound),
+                        viewState.value.searchQuery
+                    )),
                     textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()
                 )
             }

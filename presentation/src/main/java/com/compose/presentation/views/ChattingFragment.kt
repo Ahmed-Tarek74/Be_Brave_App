@@ -4,16 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.compose.presentation.events.ChattingEvent.*
 import com.compose.presentation.views.composeScreens.ChatScreen
-import com.compose.domain.entities.User
-import com.compose.presentation.events.NavigationEvent
+import com.compose.presentation.models.UserUiModel
 import com.compose.presentation.viewModels.ChatViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -34,7 +36,6 @@ class ChattingFragment : Fragment() {
                 ChatScreen(
                     awayUser = args.awayUser,
                     setIntent = viewModel::setIntent,
-                    dateFormatter = viewModel::formatDate,
                     viewState = viewModel.viewState.collectAsState()
                 )
             }
@@ -44,15 +45,16 @@ class ChattingFragment : Fragment() {
     private fun observeViewModelEvents() {
         lifecycleScope.launch {
             viewModel.event.collectLatest { event ->
-                if (event is NavigationEvent.NavigateToHome)
-                    navigateToHomeScreen(event.homeUser)
+                when (event) {
+                    is BackToHome -> navigateToHomeScreen(event.homeUser)
+                }
             }
         }
     }
-
-    private fun navigateToHomeScreen(homeUser: User) {
+    private fun navigateToHomeScreen(homeUser: UserUiModel) {
         val action = ChattingFragmentDirections.actionChattingFragmentToHomeFragment(homeUser)
         findNavController().navigate(action)
     }
+
 
 }

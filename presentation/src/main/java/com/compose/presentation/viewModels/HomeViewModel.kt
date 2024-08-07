@@ -3,14 +3,17 @@ package com.compose.presentation.viewModels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compose.domain.entities.User
+import com.compose.domain.entities.RecentChat
 import com.compose.domain.usecases.DateFormatterUseCase
 import com.compose.domain.usecases.GetRecentChatsUseCase
 import com.compose.domain.usecases.LogOutUseCase
-import com.compose.presentation.events.NavigationEvent
-import com.compose.presentation.events.NavigationEvent.*
+import com.compose.presentation.events.HomeEvent
+import com.compose.presentation.events.HomeEvent.*
 import com.compose.presentation.intents.HomeIntent
 import com.compose.presentation.intents.HomeIntent.*
+import com.compose.presentation.mappers.RecentChatUiMapper
+import com.compose.presentation.models.RecentChatUiModel
+import com.compose.presentation.models.UserUiModel
 import com.compose.presentation.viewStates.HomeViewState
 import com.compose.presentation.viewStates.HomeViewState.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,17 +30,18 @@ class HomeViewModel @Inject constructor(
     private val logOutUseCase: LogOutUseCase,
     private val getRecentChatsUseCase: GetRecentChatsUseCase,
     private val dateFormatterUseCase: DateFormatterUseCase,
+    private val recentChatMapper: RecentChatUiMapper,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _intent = MutableSharedFlow<HomeIntent>()
     private val _viewState = MutableStateFlow<HomeViewState>(Loading)
-    private val _event = MutableSharedFlow<NavigationEvent>()
+    private val _event = MutableSharedFlow<HomeEvent>()
 
     val viewState: StateFlow<HomeViewState> = _viewState
-    val event: SharedFlow<NavigationEvent> = _event
+    val event: SharedFlow<HomeEvent> = _event
 
-    private var homeUser: User? = savedStateHandle["homeUser"]!!
+    private var homeUser: UserUiModel? = savedStateHandle["homeUser"]!!
 
     init {
         viewModelScope.launch {
@@ -77,13 +81,13 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-
     private suspend fun loadRecentChats() {
         _viewState.value = Loading
         try {
             getRecentChatsUseCase(homeUser!!.userId).collectLatest { result ->
                 _viewState.value = if (result.isSuccess) {
-                    Success(result.getOrNull()!!)
+
+                    Success(map(result.getOrNull()!!))
                 } else {
                     Failure(result.exceptionOrNull()?.message ?: "Unknown error occurred")
                 }
@@ -105,5 +109,11 @@ class HomeViewModel @Inject constructor(
             _viewState.value = Failure(e.message ?: "Logout failed")
         }
 
+    }
+    private fun map(recentChatsList: List<RecentChat>): List<RecentChatUiModel> {
+        val recentChatsUiModelList = recentChatsList.map { recentChat ->
+            recentChatMapper.mapToRecentChatUiModel(recentChat, this::formatDate)
+        }
+        return recentChatsUiModelList
     }
 }

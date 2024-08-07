@@ -1,4 +1,5 @@
 package com.compose.presentation.views.composeScreens
+
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,8 +19,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,7 +53,8 @@ fun RegistrationScreen(
             text = stringResource(id = R.string.registration),
             textAlign = TextAlign.Center,
             style = TextStyle(
-                fontWeight = FontWeight.Bold),
+                fontWeight = FontWeight.Bold
+            ),
             letterSpacing = 2.sp,
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -89,16 +89,13 @@ fun RegistrationScreen(
                 onValueChange = { setIntent(PasswordChanged(it)) },
                 maxLines = 1,
                 label = { Text(stringResource(id = R.string.password)) },
-                visualTransformation = if (viewState.value.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                visualTransformation = viewState.value.passwordVisualTransformation,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {
-                    val image = if (viewState.value.isPasswordVisible)
-                        painterResource(id = R.drawable.baseline_visibility_24)
-                    else
-                        painterResource(id = R.drawable.baseline_visibility_off_24)
                     IconButton(onClick = { setIntent(PasswordVisibilityChanged(viewState.value.isPasswordVisible)) }) {
+                        val image = painterResource(viewState.value.passwordTrailingIcon)
                         val description =
-                            if (viewState.value.isPasswordVisible) "Show password" else "Hide password"
+                            stringResource(id = viewState.value.passwordIconDescription)
                         Icon(painter = image, contentDescription = description)
                     }
                 },
@@ -109,17 +106,15 @@ fun RegistrationScreen(
                 value = viewState.value.confirmationPassword,
                 onValueChange = { setIntent(ConfirmationPasswordChanged(it)) },
                 maxLines = 1,
-                label = { Text("Confirm Password") },
-                visualTransformation = if (viewState.value.isConfirmationPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                label = { Text(stringResource(R.string.confirm_password)) },
+                visualTransformation =viewState.value.confirmationPasswordVisualTransformation,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {
-                    val image = if (viewState.value.isConfirmationPasswordVisible)
-                        painterResource(id = R.drawable.baseline_visibility_24)
-                    else
-                        painterResource(id = R.drawable.baseline_visibility_off_24)
                     IconButton(onClick = { setIntent(ConfirmationPasswordVisibilityChanged(viewState.value.isConfirmationPasswordVisible)) }) {
+                        val image =
+                            painterResource(id =viewState.value.confirmationPasswordTrailingIcon)
                         val description =
-                            if (viewState.value.isConfirmationPasswordVisible) "Show password" else "Hide password"
+                           stringResource(id = viewState.value.confirmationPasswordIconDescription)
                         Icon(painter = image, contentDescription = description)
                     }
                 },
@@ -151,7 +146,7 @@ fun RegistrationScreen(
                     .fillMaxWidth()
                     .padding(vertical = 12.dp)
             ) {
-                Text("REGISTER", modifier = Modifier.padding(14.dp))
+                Text(stringResource(R.string.register), modifier = Modifier.padding(14.dp))
             }
         }
     }

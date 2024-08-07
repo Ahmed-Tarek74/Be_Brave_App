@@ -12,9 +12,9 @@ class LoginUseCase(
     private val deviceTokenRepository: DeviceTokenRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke(user: User): Flow<Result<User>> = flow {
+    suspend operator fun invoke(email: String,password:String): Flow<Result<User>> = flow {
             // Attempt to login
-            authRepository.login(user).collect { loginResult ->
+            authRepository.login(email,password).collect { loginResult ->
                 if (loginResult.isSuccess) {
                     val loggedInUser = loginResult.getOrNull()!!
                     // If login is successful, save the device token and cache user

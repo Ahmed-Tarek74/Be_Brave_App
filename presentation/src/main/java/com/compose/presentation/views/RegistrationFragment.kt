@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.compose.presentation.events.NavigationEvent
+import com.compose.presentation.events.HomeEvent
 import com.compose.presentation.viewModels.RegistrationViewModel
 import com.compose.presentation.views.composeScreens.RegistrationScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -38,7 +38,7 @@ class RegistrationFragment : Fragment() {
     private fun observeOnViewModelEvents() {
         lifecycleScope.launch {
             registrationViewModel.event.collectLatest { event ->
-                if (event is NavigationEvent.NavigateToLoginScreen){
+                if (event is HomeEvent.NavigateToLoginScreen){
                     navigateToLogin()
                 }
             }
