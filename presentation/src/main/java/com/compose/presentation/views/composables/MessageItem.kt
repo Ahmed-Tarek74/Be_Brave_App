@@ -1,12 +1,10 @@
 package com.compose.presentation.views.composables
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,32 +13,21 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.compose.presentation.R
-import com.compose.domain.entities.Message
+import com.compose.presentation.models.MessageUiModel
 
 @Composable
-fun ChatMessageItem(
-    message: Message, isCurrentUser: Boolean,
-    dateFormatter: (Long)->String,
-) {
-    val backgroundColor =
-        if (isCurrentUser) (colorResource(id = R.color.blue)) else colorResource(
-            id = R.color.white
-        )
-    val arrangement = if (isCurrentUser) Arrangement.End else Arrangement.Start
-
-    val shape = if (isCurrentUser) {
-        RoundedCornerShape(8.dp, 0.dp, 8.dp, 8.dp)
-    } else {
-        RoundedCornerShape(0.dp, 8.dp, 8.dp, 8.dp)
-    }
+fun ChatMessageItem(message: MessageUiModel) {
     Row(
-        horizontalArrangement = arrangement, modifier = Modifier
+        horizontalArrangement = message.arrangement, modifier = Modifier
             .fillMaxWidth()
             .padding(12.dp)
     ) {
         Column(
             modifier = Modifier
-                .background(backgroundColor, shape)
+                .background(
+                    colorResource(id = message.backgroundColor),
+                    shape = message.shape
+                )
                 .padding(8.dp)
         ) {
             Text(
@@ -49,7 +36,7 @@ fun ChatMessageItem(
                 modifier = Modifier.align(Alignment.Start)
             )
             Text(
-                text = dateFormatter(message.timestamp),
+                text = message.date,
                 fontSize = 10.sp,
                 color = colorResource(id = R.color.gray2),
                 modifier = Modifier.align(Alignment.End)

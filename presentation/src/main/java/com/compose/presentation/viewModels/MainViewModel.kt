@@ -5,9 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compose.domain.usecases.GetCachedUserUseCase
 import com.compose.presentation.R
-import com.compose.presentation.events.NavigationEvent
+import com.compose.presentation.events.StartDestinationEvent
+import com.compose.presentation.events.StartDestinationEvent.*
 import com.compose.presentation.intents.NotificationPermissionCommand
 import com.compose.presentation.intents.NotificationPermissionCommand.*
+import com.compose.presentation.mappers.UserUiModelMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,10 +20,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val getCachedUserUseCase: GetCachedUserUseCase) :
+class MainViewModel @Inject constructor(
+    private val getCachedUserUseCase: GetCachedUserUseCase,
+    private val userUiModelMapper: UserUiModelMapper
+) :
     ViewModel() {
 
-    private val _navigationEvent = MutableSharedFlow<NavigationEvent>()
+    private val _navigationEvent = MutableSharedFlow<StartDestinationEvent>()
     val navigationCommand = _navigationEvent.asSharedFlow()
 
     private val _notificationPermissionCommand =
@@ -38,9 +43,11 @@ class MainViewModel @Inject constructor(private val getCachedUserUseCase: GetCac
                 ShowDenied
         }
     }
+
     fun onShowPermissionRationale() {
         _notificationPermissionCommand.value = ShowRationale
     }
+
     init {
         observeLoginStatus()
     }
@@ -53,14 +60,14 @@ class MainViewModel @Inject constructor(private val getCachedUserUseCase: GetCac
                 if (cachedUser != null) {
                     destination = R.id.homeFragment
                     bundle = Bundle().apply {
-                        putSerializable("homeUser", cachedUser)
+                        putSerializable("homeUser", userUiModelMapper.mapToUserUiModel(cachedUser))
                     }
 
                 } else {
                     destination = R.id.loginFragment
                     bundle = null
                 }
-                _navigationEvent.emit(NavigationEvent.To(destination, bundle))
+                _navigationEvent.emit(To(destination, bundle))
             }
         }
     }

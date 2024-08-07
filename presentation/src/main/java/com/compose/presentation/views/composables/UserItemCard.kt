@@ -22,14 +22,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.compose.presentation.R
-import com.compose.domain.entities.User
+import com.compose.presentation.models.UserUiModel
 
 @Composable
-fun UserItemCard(user: User, onUserSelected: (User) -> Unit) {
+fun UserItemCard(user: UserUiModel, onUserSelected: (UserUiModel) -> Unit) {
     Box(
         modifier = Modifier
             .background(color = colorResource(R.color.white))
@@ -49,8 +50,8 @@ fun UserItemCard(user: User, onUserSelected: (User) -> Unit) {
 
             ) {
             AsyncImage(
-                model = user.profilePictureUrl.ifEmpty { R.drawable.default_profile_picture },
-                contentDescription = "${user.username}'s profile picture",
+                model = user.profilePicture,
+                contentDescription = stringResource(R.string.profile_picture, user.username),
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)

@@ -10,10 +10,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.compose.presentation.events.NavigationEvent
+import com.compose.presentation.events.SearchUsersEvent.*
 import com.compose.presentation.viewModels.SearchUsersViewModel
 import com.compose.presentation.views.composeScreens.SearchUsersScreen
-import com.compose.domain.entities.User
+import com.compose.presentation.models.UserUiModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -39,18 +39,18 @@ class SearchUsersFragment : Fragment() {
     private fun observeViewModelEvents() {
         lifecycleScope.launch {
             viewModel.event.collectLatest { event ->
-                if (event is NavigationEvent.NavigateToChattingScreen) navigateToChattingScreen(
-                    homeUser = event.homeUser,
-                    awayUser = event.awayUser
-                )
-                else if (event is NavigationEvent.NavigateToHome) {
-                    navigateToHomeScreen(event.homeUser)
+                when (event) {
+                    is BackToHome -> navigateToHomeScreen(event.homeUser)
+                    is UserSelected -> navigateToChattingScreen(
+                        homeUser = event.homeUser,
+                        awayUser = event.awayUser
+                    )
                 }
             }
         }
     }
 
-    private fun navigateToChattingScreen(homeUser: User, awayUser: User) {
+    private fun navigateToChattingScreen(homeUser: UserUiModel, awayUser: UserUiModel) {
         val action = SearchUsersFragmentDirections.actionSearchUsersFragmentToChattingFragment(
             homeUser = homeUser,
             awayUser = awayUser
@@ -58,7 +58,7 @@ class SearchUsersFragment : Fragment() {
         findNavController().navigate(action)
     }
 
-    private fun navigateToHomeScreen(homeUser:User) {
+    private fun navigateToHomeScreen(homeUser: UserUiModel) {
         val action = SearchUsersFragmentDirections.actionSearchUsersFragmentToHomeFragment(homeUser)
         findNavController().navigate(action)
     }

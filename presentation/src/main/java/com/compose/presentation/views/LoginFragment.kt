@@ -10,10 +10,10 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.compose.presentation.events.LoginEvent
 import com.compose.presentation.views.composeScreens.LoginScreen
-import com.compose.presentation.events.NavigationEvent.*
 import com.compose.presentation.viewModels.LoginViewModel
-import com.compose.domain.entities.User
+import com.compose.presentation.models.UserUiModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -40,20 +40,19 @@ class LoginFragment : Fragment() {
     private fun observeViewModelEvents() {
         lifecycleScope.launch {
             loginViewModel.event.collectLatest { event ->
-                if (event is NavigateToHome) {
-                    navigateToHomeFragment(event.homeUser)
+                when(event){
+                    is LoginEvent.LoginSuccess ->  navigateToHomeFragment(event.homeUser)
+                    is LoginEvent.NavigateToRegistration -> navigateToRegistration()
                 }
-                else if (event is NavigateToRegistration) navigateToRegistration()
             }
         }
     }
-
     private fun navigateToRegistration() {
         val action = LoginFragmentDirections.actionLoginFragmentToRegistrationFragment()
         findNavController().navigate(action)
     }
 
-    private fun navigateToHomeFragment(homeUser: User) {
+    private fun navigateToHomeFragment(homeUser: UserUiModel) {
         val action = LoginFragmentDirections.actionLoginFragmentToHomeFragment(homeUser =homeUser )
         findNavController().navigate(action)
     }
