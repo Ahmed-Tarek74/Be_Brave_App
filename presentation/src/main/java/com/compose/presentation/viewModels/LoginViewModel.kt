@@ -93,16 +93,9 @@ class LoginViewModel @Inject constructor(
         try {
             val email = _viewState.value.email
             val password = _viewState.value.password
-            loginUseCase(email, password).collect { result ->
-                _viewState.value = _viewState.value.copy(isLoading = false)
-                if (result.isSuccess) {
-                    val user = userUiModelMapper.mapToUserUiModel(result.getOrNull()!!)
-                    _event.emit(LoginSuccess(user))
-                } else {
-                    _viewState.value =
-                        _viewState.value.copy(errorMessage = result.exceptionOrNull()?.message.toString())
-                }
-            }
+            val user = userUiModelMapper.mapToUserUiModel(loginUseCase(email, password))
+            _viewState.value = _viewState.value.copy(isLoading = false)
+            _event.emit(LoginSuccess(user))
         } catch (e: Exception) {
             _viewState.value =
                 _viewState.value.copy(errorMessage = e.message!!, isLoading = false)

@@ -16,7 +16,7 @@ class AuthRepositoryImpl(
     private val database: FirebaseDatabase
 ) : AuthRepository {
 
-    override fun login(email: String, password: String): Flow<Result<User>> = flow {
+    override suspend fun login(email: String, password: String): User{
         try {
             // Sign in with email and password
             val authResult =
@@ -25,11 +25,11 @@ class AuthRepositoryImpl(
 
             // Fetch user data from the database
             val loggedInUser = withContext(Dispatchers.IO) { fetchUserFromDatabase(userId) }
-            // Emit success result
-            emit(Result.success(loggedInUser))
+            // return success result
+            return loggedInUser
         } catch (e: Exception) {
             Log.e(TAG, "Login failed: ${e.localizedMessage}", e)
-            emit(Result.failure(e))
+            throw e
         }
     }
     override fun register(user: User): Flow<Result<User>> = flow {
