@@ -1,5 +1,5 @@
 package com.compose.domain.usecases
-import android.util.Log
+
 import com.compose.domain.entities.Message
 import com.compose.domain.entities.User
 import com.compose.domain.repos.MessagesRepository
@@ -11,42 +11,20 @@ class SendMessageUseCase(
     private val messagesRepository: MessagesRepository,
     private val recentChatsRepository: RecentChatsRepository,
 ) {
-    suspend operator fun invoke(message: Message, homeUser: User, awayUser: User) {
+    suspend operator fun invoke(message: Message, homeUser: User, awayUser: User) =
         withContext(Dispatchers.IO) {
-            try {
-                val chatId = getChatId(message.senderId, message.receiverId)
-                messagesRepository.sendMessage(message,chatId).collect { sendResult ->
-                    if (sendResult.isSuccess) {
-                        // Update recent chats
-                        updateRecentChats(message, homeUser, awayUser)
-                    } else {
-                        Log.e(TAG, "Failed to send message: ${sendResult.exceptionOrNull()?.message}")
-                        throw Exception("Failed to send message")
-                    }
-                }
-            } catch (e: Exception) {
-                // Log the error and return failure result
-                Log.e(TAG, "Error in SendMessageUseCase: ${e.message}", e)
-                throw Exception("Failed to send message")
-            }
-        }
+            val chatId = getChatId(message.senderId, message.receiverId)
+            messagesRepository.sendMessage(message, chatId)
+            updateRecentChats(message, homeUser, awayUser)
+
     }
+
     private suspend fun updateRecentChats(message: Message, homeUser: User, awayUser: User) {
-        try {
-            recentChatsRepository.updateRecentChats(message.receiverId, homeUser, message.message)
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to update recent chats for receiver: ${e.message}", e)
-        }
-        try {
-            recentChatsRepository.updateRecentChats(message.senderId, awayUser, message.message)
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to update recent chats for sender: ${e.message}", e)
-        }
+        recentChatsRepository.updateRecentChats(message.receiverId, homeUser, message.message)
+        recentChatsRepository.updateRecentChats(message.senderId, awayUser, message.message)
     }
+
     private fun getChatId(homeUserId: String, awayUserId: String): String {
         return if (homeUserId < awayUserId) "$homeUserId-$awayUserId" else "$awayUserId-$homeUserId"
-    }
-    companion object {
-        const val TAG = "SendMessageUseCase"
     }
 }

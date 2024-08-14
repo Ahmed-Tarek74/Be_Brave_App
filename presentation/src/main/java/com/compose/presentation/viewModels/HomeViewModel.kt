@@ -3,7 +3,6 @@ package com.compose.presentation.viewModels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compose.domain.entities.RecentChat
 import com.compose.domain.usecases.DateFormatterUseCase
 import com.compose.domain.usecases.GetRecentChatsUseCase
 import com.compose.domain.usecases.LogOutUseCase
@@ -11,8 +10,7 @@ import com.compose.presentation.events.HomeEvent
 import com.compose.presentation.events.HomeEvent.*
 import com.compose.presentation.intents.HomeIntent
 import com.compose.presentation.intents.HomeIntent.*
-import com.compose.presentation.mappers.RecentChatUiMapper
-import com.compose.presentation.models.RecentChatUiModel
+import com.compose.presentation.mappers.toUiModel
 import com.compose.presentation.models.UserUiModel
 import com.compose.presentation.viewStates.HomeViewState
 import com.compose.presentation.viewStates.HomeViewState.*
@@ -30,7 +28,6 @@ class HomeViewModel @Inject constructor(
     private val logOutUseCase: LogOutUseCase,
     private val getRecentChatsUseCase: GetRecentChatsUseCase,
     private val dateFormatterUseCase: DateFormatterUseCase,
-    private val recentChatMapper: RecentChatUiMapper,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -69,51 +66,42 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             when (intent) {
                 is SelectRecentChat -> _event.emit(
-                    NavigateToChattingScreen(
+                    ChatSelected(
                         homeUser = homeUser!!,
                         awayUser = intent.selectedUser
                     )
                 )
+
                 is StartNewChat -> _event.emit(NavigateToSearchScreen(homeUser!!))
-                is LoggedOut -> {
+                is HomeIntent.LoggedOut -> {
                     logout()
                 }
             }
         }
     }
+
     private suspend fun loadRecentChats() {
         _viewState.value = Loading
         try {
-            getRecentChatsUseCase(homeUser!!.userId).collectLatest { result ->
-                _viewState.value = if (result.isSuccess) {
-
-                    Success(map(result.getOrNull()!!))
-                } else {
-                    Failure(result.exceptionOrNull()?.message ?: "Unknown error occurred")
-                }
+            getRecentChatsUseCase(homeUser!!.userId).collectLatest { recentChats ->
+                _viewState.value=Success(recentChats.toUiModel(this::formatDate))
             }
         } catch (e: Exception) {
             _viewState.value = Failure(e.message ?: "Error fetching recent chats")
         }
     }
 
-    fun formatDate(date: Long): String {
+    private fun formatDate(date: Long): String {
         return dateFormatterUseCase(date)
     }
 
     private suspend fun logout() {
         try {
             logOutUseCase()
-            _event.emit(NavigateToLoginScreen)
+            _event.emit(HomeEvent.LoggedOut)
         } catch (e: Exception) {
             _viewState.value = Failure(e.message ?: "Logout failed")
         }
+    }
 
-    }
-    private fun map(recentChatsList: List<RecentChat>): List<RecentChatUiModel> {
-        val recentChatsUiModelList = recentChatsList.map { recentChat ->
-            recentChatMapper.mapToRecentChatUiModel(recentChat, this::formatDate)
-        }
-        return recentChatsUiModelList
-    }
 }

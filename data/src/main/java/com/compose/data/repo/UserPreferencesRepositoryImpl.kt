@@ -1,49 +1,32 @@
 package com.compose.data.repo
-
-import android.util.Log
-import com.compose.data.local.DataStoreManager
+import com.compose.data.datasource.user.UserDataStoreManager
 import com.compose.domain.entities.User
 import com.compose.domain.repos.UserPreferencesRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
-class UserPreferencesRepositoryImpl(private val dataStoreManager: DataStoreManager) :
+class UserPreferencesRepositoryImpl(private val userDataStoreManager: UserDataStoreManager) :
     UserPreferencesRepository {
 
     override suspend fun saveUserPreferences(user: User) {
         try {
-            dataStoreManager.cacheUser(user)
+            userDataStoreManager.cacheUser(user)
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to cache user: ${e.localizedMessage}")
+           throw Exception("Failed to cache user: ${e.localizedMessage}")
         }
     }
-
-    override fun getCachedUser(): Flow<User?> = flow {
+    override suspend fun getCachedUser(): User {
         try {
-            emit(dataStoreManager.getUser())
+          return userDataStoreManager.getUser()?: throw Exception("Failed to get logged in user")
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to get logged in user: ${e.localizedMessage}", e)
-            emit(null)
+            throw Exception("Failed to get logged in user: ${e.localizedMessage}",e)
         }
     }
-
-
     override suspend fun clearUserPreferences() {
         try {
             // Perform the clear operation
-            dataStoreManager.clearUser()
-            // Log success
-            Log.d(TAG, "User preferences cleared successfully.")
-
+            userDataStoreManager.clearUser()
         } catch (e: Exception) {
-            // Log the error
-            Log.e(TAG, "Failed to clear user preferences: ${e.localizedMessage}", e)
+           throw Exception("Failed to clear user preferences: ${e.localizedMessage}", e)
         }
     }
-
-    companion object {
-        private const val TAG = "UserCacheRepositoryImpl"
-    }
-
 }
 

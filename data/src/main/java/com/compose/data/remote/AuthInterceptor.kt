@@ -8,7 +8,6 @@ class AuthInterceptor(
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val token = fcmServiceUtil.getAccessToken()
-        requireNotNull(token) { "Failed to retrieve access token" }
         val request = chain.request().newBuilder()
             .addHeader("Authorization", "Bearer $token")
             .addHeader("Content-Type", "application/json")

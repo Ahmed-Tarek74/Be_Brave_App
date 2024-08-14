@@ -1,6 +1,5 @@
 package com.compose.presentation.views.composeScreens
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -12,7 +11,6 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -60,7 +58,6 @@ fun RegistrationScreen(
                 .align(Alignment.TopCenter)
                 .padding(top = 16.dp)
         )
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -122,17 +119,11 @@ fun RegistrationScreen(
             )
             Spacer(modifier = Modifier.padding(20.dp))
 
-            viewState.value.errorMessage?.let {
-                ErrorMsgCard(errorMsg = it)
+            viewState.value.errorMessage?.let {errorMsg->
+                ErrorMsgCard(errorMsg = errorMsg)
             }
-
             if (viewState.value.isLoading) {
                 LoadingDialog(loadingMsg = stringResource(id = R.string.signingIn)) {}
-            }
-
-            if (viewState.value.isSuccess) {
-                Toast.makeText(LocalContext.current, "Register Successfully", Toast.LENGTH_SHORT)
-                    .show()
             }
             Button(
                 onClick = { setIntent(Register) },

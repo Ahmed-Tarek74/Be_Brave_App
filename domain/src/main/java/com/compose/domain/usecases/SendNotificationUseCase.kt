@@ -16,40 +16,31 @@ class SendNotificationUseCase(
 ) {
     suspend operator fun invoke(sender: User, message: Message) {
         withContext(Dispatchers.IO) {
-            try {
-                deviceTokenRepository.getDeviceToken(message.receiverId).collect { token ->
-                    if (token != null) {
-                        val notification = createNotification(sender, message, token)
-                        notificationRepository.sendNotification(notification)
-                    }
-                    else
-                        throw Exception("Failed to send notification")
-                }
-            } catch (e: Exception) {
-                throw Exception("Failed to send notification")
-            }
+            val token = deviceTokenRepository.getDeviceToken(message.receiverId)
+            val notification = createNotification(sender, message, token)
+            notificationRepository.sendNotification(notification)
         }
     }
+}
 
-    private fun createNotification(
-        sender: User,
-        message: Message,
-        token: String
-    ): NotificationMessage {
-        val data = mapOf(
-            "senderUsername" to sender.username,
-            "senderImage" to sender.profilePictureUrl,
-            "timestamp" to message.timestamp.toString()
-        )
+private fun createNotification(
+    sender: User,
+    message: Message,
+    token: String
+): NotificationMessage {
+    val data = mapOf(
+        "senderUsername" to sender.username,
+        "senderImage" to sender.profilePictureUrl,
+        "timestamp" to message.timestamp.toString()
+    )
 
-        val notificationData = NotificationData(
-            data = data,
-            token = token,
-            notification = Notification(
-                title = "Message from ${sender.username}",
-                body = message.message
-            )
+    val notificationData = NotificationData(
+        data = data,
+        token = token,
+        notification = Notification(
+            title = "Message from ${sender.username}",
+            body = message.message
         )
-        return NotificationMessage(notificationData)
-    }
+    )
+    return NotificationMessage(notificationData)
 }

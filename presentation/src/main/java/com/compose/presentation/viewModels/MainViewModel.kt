@@ -9,7 +9,7 @@ import com.compose.presentation.events.StartDestinationEvent
 import com.compose.presentation.events.StartDestinationEvent.*
 import com.compose.presentation.intents.NotificationPermissionCommand
 import com.compose.presentation.intents.NotificationPermissionCommand.*
-import com.compose.presentation.mappers.UserUiModelMapper
+import com.compose.presentation.mappers.mapToUserUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +22,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getCachedUserUseCase: GetCachedUserUseCase,
-    private val userUiModelMapper: UserUiModelMapper
 ) :
     ViewModel() {
 
@@ -56,19 +55,17 @@ class MainViewModel @Inject constructor(
         var bundle: Bundle?
         var destination: Int
         viewModelScope.launch {
-            getCachedUserUseCase().collect { cachedUser ->
-                if (cachedUser != null) {
-                    destination = R.id.homeFragment
-                    bundle = Bundle().apply {
-                        putSerializable("homeUser", userUiModelMapper.mapToUserUiModel(cachedUser))
-                    }
-
-                } else {
-                    destination = R.id.loginFragment
-                    bundle = null
+            try {
+                val cachedUser = getCachedUserUseCase()
+                destination = R.id.homeFragment
+                bundle = Bundle().apply {
+                    putSerializable("homeUser", cachedUser.mapToUserUiModel())
                 }
-                _navigationEvent.emit(To(destination, bundle))
+            } catch (e: Exception) {
+                destination = R.id.loginFragment
+                bundle = null
             }
+            _navigationEvent.emit(To(destination, bundle))
         }
     }
 }

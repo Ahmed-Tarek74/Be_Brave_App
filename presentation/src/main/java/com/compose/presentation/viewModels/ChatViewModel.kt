@@ -12,9 +12,8 @@ import com.compose.presentation.R
 import com.compose.presentation.events.ChattingEvent
 import com.compose.presentation.intents.ChatIntent
 import com.compose.presentation.intents.ChatIntent.*
-import com.compose.presentation.mappers.MessageUiModelMapper
-import com.compose.presentation.mappers.UserUiModelMapper
-import com.compose.presentation.models.MessageUiModel
+import com.compose.presentation.mappers.mapToUser
+import com.compose.presentation.mappers.toUiModel
 import com.compose.presentation.models.UserUiModel
 import com.compose.presentation.viewStates.ChatViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,8 +31,6 @@ class ChatViewModel @Inject constructor(
     private val getRecentMessagesUseCase: GetRecentMessagesUseCase,
     private val dateFormatterUseCase: DateFormatterUseCase,
     private val sendNotificationUseCase: SendNotificationUseCase,
-    private val messageUiModelMapper: MessageUiModelMapper,
-    private val userUiModelMapper: UserUiModelMapper,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _viewState = MutableStateFlow(ChatViewState())
@@ -53,7 +50,7 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             _intent.collectLatest { intent ->
                 when (intent) {
-                    is ChatIntent.BackToHome -> _event.emit(ChattingEvent.BackToHome(homeUser))
+                    is BackToHome -> _event.emit(ChattingEvent.BackToHome(homeUser))
                     is MessageInputChanged -> onMessageInputChanged(intent.messageInput)
                     is SendMessage -> sendMessage(intent.message)
                 }
@@ -84,29 +81,34 @@ class ChatViewModel @Inject constructor(
 
     private suspend fun sendMessage(message: String) {
         if (_viewState.value.isSendEnabled) {
+            _viewState.value = _viewState.value.copy(
+                message = "",
+                isSendEnabled = false,
+                sendBtnContainerColor = R.color.gray1
+            )
+            val senderMessage = Message(
+                senderId = homeUser.userId,
+                receiverId = awayUser.userId,
+                message = message
+            )
             try {
-                _viewState.value = _viewState.value.copy(
-                    message = "",
-                    isSendEnabled = false,
-                    sendBtnContainerColor = R.color.gray1
-                )
-                val senderMessage = Message(
-                    senderId = homeUser.userId,
-                    receiverId = awayUser.userId,
-                    message = message
-                )
                 sendMessageUseCase(
                     message = senderMessage,
-                    homeUser = userUiModelMapper.mapToUserDomainModel(homeUser),
-                    awayUser = userUiModelMapper.mapToUserDomainModel(awayUser)
+                    homeUser = homeUser.mapToUser(),
+                    awayUser = awayUser.mapToUser()
                 )
+            } catch (e: Exception) {
+                _viewState.value =
+                    _viewState.value.copy(errorMsg = e.message ?: "Failed to send Message")
+            }
+            try {
                 sendNotificationUseCase(
-                    userUiModelMapper.mapToUserDomainModel(homeUser),
+                    homeUser.mapToUser(),
                     senderMessage
                 )
             } catch (e: Exception) {
                 _viewState.value =
-                    _viewState.value.copy(errorMsg = e.message ?: "Unknown error occurred")
+                    _viewState.value.copy(errorMsg = "Failed to send Notification")
             }
         }
     }
@@ -118,17 +120,19 @@ class ChatViewModel @Inject constructor(
     private fun fetchRecentMessages() {
         _viewState.value = _viewState.value.copy(
             isLoading = true,
-            errorMsg = ""
+            errorMsg = null
         )
         viewModelScope.launch {
             try {
                 getRecentMessagesUseCase(homeUser.userId, awayUser.userId)
-                    .collectLatest { result ->
-
+                    .collectLatest { messagesList ->
                         _viewState.value = _viewState.value.copy(
-                            messagesList = map(result.getOrElse { emptyList() }),
+                            messagesList = (messagesList.toUiModel(
+                                awayUser.userId,
+                                this@ChatViewModel::formatDate
+                            )),
                             isLoading = false,
-                            errorMsg = result.exceptionOrNull()?.message ?: ""
+                            errorMsg = null
                         )
                     }
             } catch (e: Exception) {
@@ -138,13 +142,5 @@ class ChatViewModel @Inject constructor(
                 )
             }
         }
-    }
-
-    private fun map(messagesList: List<Message>): List<MessageUiModel> {
-        val messagesUiModelList = messagesList.map { message ->
-            val isHomeUser = awayUser.userId != message.senderId
-            messageUiModelMapper(message, isHomeUser, this::formatDate)
-        }
-        return messagesUiModelList
     }
 }

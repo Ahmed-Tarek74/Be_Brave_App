@@ -1,12 +1,13 @@
-package com.compose.data.local
+package com.compose.data.datasource.user
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import com.compose.data.constatnts.PreferenceDataStoreConstants
 import com.compose.domain.entities.User
 import kotlinx.coroutines.flow.first
 
-class DataStoreManager(private val dataStore: DataStore<Preferences>) {
+class UserDataStoreManager(private val dataStore: DataStore<Preferences>) {
 
     // Cache user details into DataStore
     suspend fun cacheUser(user: User) {

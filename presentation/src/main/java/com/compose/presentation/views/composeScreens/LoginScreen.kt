@@ -78,8 +78,8 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .padding(top = 15.dp, bottom = 30.dp)
         )
-        viewState.value.errorMessage?.let {
-            ErrorMsgCard(errorMsg = it)
+        viewState.value.errorMessage?.let {errorMsg->
+            ErrorMsgCard(errorMsg =errorMsg)
         }
         if (viewState.value.isLoading) {
             LoadingDialog(loadingMsg = stringResource(id = R.string.signingIn)){}

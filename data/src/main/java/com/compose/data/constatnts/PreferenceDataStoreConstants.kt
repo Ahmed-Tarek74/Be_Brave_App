@@ -1,4 +1,4 @@
-package com.compose.data.local
+package com.compose.data.constatnts
 
 import androidx.datastore.preferences.core.stringPreferencesKey
 

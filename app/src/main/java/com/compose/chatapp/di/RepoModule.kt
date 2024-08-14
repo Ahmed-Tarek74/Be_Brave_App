@@ -5,8 +5,17 @@ import android.content.res.AssetManager
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
-import com.compose.data.local.DataStoreManager
-import com.compose.data.local.PreferenceDataStoreConstants
+import com.compose.data.datasource.auth.FirebaseIAuthDataSource
+import com.compose.data.datasource.user.UserDataStoreManager
+import com.compose.data.constatnts.PreferenceDataStoreConstants
+import com.compose.data.datasource.deviceToken.IDeviceTokenDataSource
+import com.compose.data.datasource.deviceToken.FirebaseIDeviceTokenDataSource
+import com.compose.data.datasource.message.IMessageDataSource
+import com.compose.data.datasource.message.FirebaseIMessageDataSource
+import com.compose.data.datasource.recentChat.FirebaseRecentChatDataSource
+import com.compose.data.datasource.recentChat.IRecentChatDataSource
+import com.compose.data.datasource.user.FirebaseUserDataSource
+import com.compose.data.datasource.user.UserDataSource
 import com.compose.data.remote.FcmApi
 import com.compose.data.repo.AuthRepositoryImpl
 import com.compose.data.repo.MessagesRepositoryImpl
@@ -66,26 +75,39 @@ object RepoModule {
 
     @Provides
     @Singleton
-    fun provideDataStoreManager(dataStore: DataStore<Preferences>): DataStoreManager {
-        return DataStoreManager(dataStore)
+    fun provideDataStoreManager(dataStore: DataStore<Preferences>): UserDataStoreManager {
+        return UserDataStoreManager(dataStore)
+    }
+    @Provides
+    @Singleton
+    fun provideFirebaseAuthProvider(firebaseAuth: FirebaseAuth): FirebaseIAuthDataSource {
+        return FirebaseIAuthDataSource(firebaseAuth)
+    }
+    @Provides
+    @Singleton
+    fun provideFirebaseUserDataStore(firebaseDatabase: FirebaseDatabase): FirebaseUserDataSource {
+        return FirebaseUserDataSource(firebaseDatabase)
     }
     @Provides
     @Singleton
     fun provideAuthRepository(
-        firebaseAuth: FirebaseAuth,
-        firebaseDatabase: FirebaseDatabase,
-    ):
-            AuthRepository = AuthRepositoryImpl(firebaseAuth, firebaseDatabase)
+        firebaseAuthDataSource: FirebaseIAuthDataSource,
+        firebaseUserDataSource: FirebaseUserDataSource
+    ):AuthRepository = AuthRepositoryImpl(firebaseAuthDataSource, firebaseUserDataSource)
 
     @Provides
     @Singleton
-    fun provideListUsersRepo(firebaseDatabase: FirebaseDatabase):
-            GetUsersRepository = GetUsersRepositoryImpl(firebaseDatabase)
+    fun provideListUsersRepo(userDataSource: UserDataSource):
+            GetUsersRepository = GetUsersRepositoryImpl(userDataSource)
+    @Provides
+    @Singleton
+    fun provideMessageDataSource(firebaseDatabase: FirebaseDatabase):
+            IMessageDataSource = FirebaseIMessageDataSource(firebaseDatabase)
 
     @Provides
     @Singleton
-    fun provideChatRepo(firebaseDatabase: FirebaseDatabase):
-            MessagesRepository = MessagesRepositoryImpl(firebaseDatabase)
+    fun provideChatRepo(messageDataSource: IMessageDataSource):
+            MessagesRepository = MessagesRepositoryImpl(messageDataSource)
 
     @Provides
     @Singleton
@@ -96,19 +118,31 @@ object RepoModule {
     @Singleton
     fun provideTokenService():
             ITokenService = TokenService()
+    @Provides
+    @Singleton
+    fun provideDeviceTokenDataStore(database: FirebaseDatabase):
+            IDeviceTokenDataSource = FirebaseIDeviceTokenDataSource(database)
 
     @Provides
     @Singleton
-    fun provideDeviceTokenRepo(database: FirebaseDatabase, tokenService: ITokenService):
-            DeviceTokenRepository = DeviceTokenRepositoryImpl(tokenService, database)
+    fun provideDeviceTokenRepo(deviceTokenDataSource: IDeviceTokenDataSource, tokenService: ITokenService):
+            DeviceTokenRepository = DeviceTokenRepositoryImpl(tokenService, deviceTokenDataSource)
 
     @Provides
     @Singleton
-    fun provideUserPreferencesRepo(dataStoreManager: DataStoreManager):
-            UserPreferencesRepository = UserPreferencesRepositoryImpl(dataStoreManager)
+    fun provideUserPreferencesRepo(userDataStoreManager: UserDataStoreManager):
+            UserPreferencesRepository = UserPreferencesRepositoryImpl(userDataStoreManager)
     @Provides
     @Singleton
-    fun provideRecentChatsRepo(firebaseDatabase: FirebaseDatabase):
-            RecentChatsRepository = RecentChatsRepositoryImpl(firebaseDatabase)
+    fun provideRecentChatsDataSource(firebaseDatabase: FirebaseDatabase):
+            IRecentChatDataSource = FirebaseRecentChatDataSource(firebaseDatabase)
+    @Provides
+    @Singleton
+    fun provideRecentChatsRepo(recentChatDataSource: IRecentChatDataSource):
+            RecentChatsRepository = RecentChatsRepositoryImpl(recentChatDataSource)
+    @Provides
+    @Singleton
+    fun provideUserDataSource(firebaseDatabase: FirebaseDatabase):
+            UserDataSource = FirebaseUserDataSource(firebaseDatabase)
 
 }

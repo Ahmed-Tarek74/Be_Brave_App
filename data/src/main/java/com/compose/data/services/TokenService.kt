@@ -1,14 +1,16 @@
 package com.compose.data.services
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.ktx.messaging
 
 class TokenService : ITokenService {
-    override fun getToken(): Flow<String> = flow {
-        val token = Firebase.messaging.token.await()
-        emit(token)
+
+    override suspend fun getToken(): String {
+        return try {
+            FirebaseMessaging.getInstance().token.await()
+        } catch (e: Exception) {
+            throw TokenRetrievalException("Failed to retrieve FCM device token", e)
+        }
     }
 }
+class TokenRetrievalException(message: String, cause: Throwable) : Exception(message, cause)

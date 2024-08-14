@@ -7,7 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.compose.domain.entities.User
 import com.compose.domain.usecases.RegistrationUseCase
 import com.compose.presentation.R
-import com.compose.presentation.events.HomeEvent
+import com.compose.presentation.events.RegistrationEvent
+import com.compose.presentation.events.RegistrationEvent.*
 import com.compose.presentation.intents.RegistrationIntent
 import com.compose.presentation.intents.RegistrationIntent.*
 import com.compose.presentation.viewStates.RegistrationViewState
@@ -29,8 +30,8 @@ class RegistrationViewModel @Inject constructor(
 
     private val _intent = MutableSharedFlow<RegistrationIntent>()
 
-    private val _event = MutableSharedFlow<HomeEvent>()
-    val event: SharedFlow<HomeEvent> = _event
+    private val _event = MutableSharedFlow<RegistrationEvent>()
+    val event: SharedFlow<RegistrationEvent> = _event
 
     init {
         processIntents()
@@ -84,7 +85,7 @@ class RegistrationViewModel @Inject constructor(
                 when (intent) {
                     is Register -> register()
                     is NavigateToLogin -> {
-                        _event.emit(HomeEvent.NavigateToLoginScreen)
+                        _event.emit(backToLogin)
                     }
 
                     is ConfirmationPasswordChanged -> onConfirmationPasswordChanged(intent.confirmationPassword)
@@ -116,21 +117,10 @@ class RegistrationViewModel @Inject constructor(
         _state.value = _state.value.copy(isLoading = true, errorMessage = null)
         viewModelScope.launch {
             try {
-
-                registrationUseCase(user, _state.value.confirmationPassword).collect { result ->
-                    _state.value = _state.value.copy(isLoading = false)
-                    if (result.isSuccess) {
-                        _state.value = _state.value.copy(isSuccess = true)
-                        val navigateToLogin = HomeEvent.NavigateToLoginScreen
-                        _event.emit(navigateToLogin)
-                    } else {
-                        _state.value = _state.value.copy(
-                            errorMessage = result.exceptionOrNull()!!.message
-                                ?: "Failed to register",
-                            isSuccess = false
-                        )
-                    }
-                }
+                registrationUseCase(user, _state.value.confirmationPassword)
+                _state.value = _state.value.copy(isLoading = false)
+                _state.value = _state.value.copy(isSuccess = true)
+                _event.emit(RegisterSuccessfully)
             } catch (e: Exception) {
                 _state.value = _state.value.copy(
                     errorMessage = e.message ?: "Failed to register",

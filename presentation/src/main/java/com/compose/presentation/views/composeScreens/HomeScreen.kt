@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.compose.presentation.intents.HomeIntent.*
+import com.compose.presentation.viewStates.HomeViewState.*
 import com.compose.presentation.views.composables.ErrorMsgCard
 import com.compose.presentation.views.composables.RecentChatCard
 
@@ -95,7 +96,7 @@ fun HomeScreen(
                 .background(color = colorResource(id = R.color.white))
         ) {
             when (viewState.value) {
-                is HomeViewState.Loading -> {
+                is Loading -> {
                     Spacer(modifier = Modifier.weight(1f))
                     CircularProgressIndicator(
                         color = colorResource(id = R.color.primary_dark_blue),
@@ -106,14 +107,13 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.weight(1f))
                 }
 
-                is HomeViewState.Failure -> {
+                is Failure -> {
                     Spacer(modifier = Modifier.weight(1f))
-                    ErrorMsgCard(errorMsg = (viewState.value as HomeViewState.Failure).error)
+                    ErrorMsgCard(errorMsg = (viewState.value as Failure).error)
                     Spacer(modifier = Modifier.weight(1f))
                 }
-
-                is HomeViewState.Success -> {
-                    val recentChats = (viewState.value as HomeViewState.Success).recentChats
+                is Success -> {
+                    val recentChats = (viewState.value as Success).recentChats
                     if (recentChats.isEmpty()) {
                         Spacer(modifier = Modifier.weight(1f))
                         Text(

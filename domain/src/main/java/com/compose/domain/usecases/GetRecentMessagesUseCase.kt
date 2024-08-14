@@ -10,7 +10,7 @@ class GetRecentMessagesUseCase(private val messagesRepository: MessagesRepositor
     suspend operator fun invoke(
         homeUserId: String,
         awayUserId: String
-    ): Flow<Result<List<Message>>> =
+    ): Flow<List<Message>> =
         withContext(Dispatchers.IO) {
             val chatId = getChatId(homeUserId,awayUserId )
             messagesRepository.getChatMessages(chatId)

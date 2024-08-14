@@ -9,7 +9,7 @@ import com.compose.presentation.intents.SearchUsersIntent.*
 import com.compose.presentation.viewStates.SearchUsersViewState
 import com.compose.domain.usecases.GetUsersUseCase
 import com.compose.presentation.events.SearchUsersEvent
-import com.compose.presentation.mappers.UserUiModelMapper
+import com.compose.presentation.mappers.mapToUserUiModel
 import com.compose.presentation.models.UserUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,7 +23,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchUsersViewModel @Inject constructor(
     private val getUsersUseCase: GetUsersUseCase,
-    private val userUiModelMapper: UserUiModelMapper,
     savedStateHandle: SavedStateHandle
 ) :
     ViewModel() {
@@ -76,24 +75,22 @@ class SearchUsersViewModel @Inject constructor(
     private suspend fun searchUsers(query: String, userId: String) {
         _viewState.value =
             _viewState.value.copy(isLoading = true, errorMsg = null, emptyListErrorMsg = null)
-        getUsersUseCase.searchUsers(query, userId).collect { result ->
+        try {
+            val filteredUsersList = getUsersUseCase.searchUsers(query, userId)
             _viewState.value = _viewState.value.copy(isLoading = false)
-            if (result.isSuccess) {
-                if (result.getOrNull().isNullOrEmpty()) {
-                    _viewState.value = _viewState.value.copy(emptyListErrorMsg = query)
-                } else {
-                    _viewState.value = _viewState.value.copy(usersList = map(result.getOrNull()!!))
-                }
+            if (filteredUsersList.isEmpty()) {
+                _viewState.value = _viewState.value.copy(emptyListErrorMsg = query)
             } else {
-                _viewState.value =
-                    _viewState.value.copy(errorMsg = result.exceptionOrNull()?.message.toString())
+                _viewState.value = _viewState.value.copy(usersList = map(filteredUsersList))
             }
+        } catch (e: Exception) {
+            _viewState.value =
+                _viewState.value.copy(errorMsg = e.message ?: "Failed to search for $query", isLoading = false)
         }
     }
-
     private fun map(userList: List<User>): List<UserUiModel> {
         val usersUiModelList = userList.map { user ->
-            userUiModelMapper.mapToUserUiModel(user)
+            user.mapToUserUiModel()
         }
         return usersUiModelList
     }

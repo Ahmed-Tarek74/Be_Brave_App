@@ -34,6 +34,7 @@
     <string name="no_result_found_for">%1$s %2$s</string>
     <string name="confirm_password">Confirm Password</string>
     <string name="register">REGISTER</string>
+    <string name="registerSuccessfully">Register Successfully</string>
 
 
 </resources>
