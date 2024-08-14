@@ -10,7 +10,7 @@ import com.compose.presentation.events.LoginEvent
 import com.compose.presentation.events.LoginEvent.*
 import com.compose.presentation.intents.LoginIntent
 import com.compose.presentation.intents.LoginIntent.*
-import com.compose.presentation.mappers.UserUiModelMapper
+import com.compose.presentation.mappers.mapToUserUiModel
 import com.compose.presentation.viewStates.LoginViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,7 +24,6 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-    private val userUiModelMapper: UserUiModelMapper
 ) : ViewModel() {
 
     private val _intent = MutableSharedFlow<LoginIntent>()
@@ -93,7 +92,7 @@ class LoginViewModel @Inject constructor(
         try {
             val email = _viewState.value.email
             val password = _viewState.value.password
-            val user = userUiModelMapper.mapToUserUiModel(loginUseCase(email, password))
+            val user = loginUseCase(email, password).mapToUserUiModel()
             _viewState.value = _viewState.value.copy(isLoading = false)
             _event.emit(LoginSuccess(user))
         } catch (e: Exception) {

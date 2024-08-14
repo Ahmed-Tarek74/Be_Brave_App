@@ -9,7 +9,7 @@ import kotlinx.coroutines.withContext
 class GetRecentChatsUseCase(
     private val recentChatsRepository: RecentChatsRepository
 ) {
-    suspend operator fun invoke(userId: String): Flow<Result<List<RecentChat>>> =
+    suspend operator fun invoke(userId: String): Flow<List<RecentChat>> =
         withContext(Dispatchers.IO) {
             recentChatsRepository.getRecentChats(userId)
         }

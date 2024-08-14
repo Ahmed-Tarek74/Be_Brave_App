@@ -6,7 +6,7 @@ data class ChatViewState(
     val messagesList: List<MessageUiModel> = emptyList(),
     val message: String = "",
     val isSendEnabled: Boolean = false,
-    val errorMsg: String = "",
+    val errorMsg: String? = null,
     val isLoading: Boolean = false,
     val sendBtnContainerColor :Int = R.color.gray1
 )

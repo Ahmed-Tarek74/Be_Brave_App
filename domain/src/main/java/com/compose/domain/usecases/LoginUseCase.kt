@@ -11,19 +11,9 @@ class LoginUseCase(
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
     suspend operator fun invoke(email: String, password: String): User {
-        try {
-            // Attempt to login
-            val user = authRepository.login(email, password)
-            userPreferencesRepository.saveUserPreferences(user)
-            deviceTokenRepository.getAndSaveDeviceToken(user.userId)
-                .collect { deviceTokenResult ->
-                    if (!deviceTokenResult) {
-                        throw Exception("Failed to save device token")
-                    }
-                }
-            return user
-        } catch (e: Exception) {
-            throw e
-        }
+        val user = authRepository.login(email, password)
+        userPreferencesRepository.saveUserPreferences(user)
+        deviceTokenRepository.getAndSaveDeviceToken(user.userId)
+        return user
     }
 }

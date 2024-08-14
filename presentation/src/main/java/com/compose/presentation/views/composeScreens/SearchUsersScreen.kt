@@ -60,11 +60,9 @@ fun SearchUsersScreen(
                     textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()
                 )
             }
-
-            viewState.value.errorMsg != null -> {
+            viewState.value.errorMsg != null ->{
                 ErrorMsgCard(errorMsg = viewState.value.errorMsg!!)
             }
-
             else -> {
                 Card(
                     elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),

@@ -40,11 +40,11 @@ class HomeFragment : Fragment() {
         lifecycleScope.launch {
             homeViewModel.event.collectLatest { event ->
                 when (event) {
-                    is NavigateToChattingScreen -> navigateToChattingScreen(
+                    is ChatSelected -> navigateToChattingScreen(
                         homeUser = event.homeUser,
                         awayUser = event.awayUser
                     )
-                    is NavigateToLoginScreen -> navigateToLoginScreen()
+                    is LoggedOut -> navigateToLoginScreen()
                     is NavigateToSearchScreen -> navigateToSearchScreen(
                         event.homeUser
                     )

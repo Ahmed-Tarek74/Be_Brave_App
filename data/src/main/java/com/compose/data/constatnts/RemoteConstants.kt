@@ -1,6 +1,5 @@
-package com.compose.data.remote
+package com.compose.data.constatnts
 
-
-object Constants {
+object RemoteConstants {
     const val BASE_URL = "https://fcm.googleapis.com/v1/"
 }

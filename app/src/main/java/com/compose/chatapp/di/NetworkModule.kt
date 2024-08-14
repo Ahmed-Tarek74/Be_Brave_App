@@ -1,7 +1,7 @@
 package com.compose.chatapp.di
 
 import com.compose.data.remote.AuthInterceptor
-import com.compose.data.remote.Constants.BASE_URL
+import com.compose.data.constatnts.RemoteConstants.BASE_URL
 import com.compose.data.remote.FcmApi
 import com.compose.data.utils.FcmServiceUtil
 import dagger.Module
