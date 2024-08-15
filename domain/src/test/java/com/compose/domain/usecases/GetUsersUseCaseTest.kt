@@ -1,8 +1,7 @@
-package com.compose.domain.usecasee
+package com.compose.domain.usecases
 
 import com.compose.domain.entities.User
 import com.compose.domain.repos.GetUsersRepository
-import com.compose.domain.usecases.GetUsersUseCase
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.test.runTest
 import org.junit.Before

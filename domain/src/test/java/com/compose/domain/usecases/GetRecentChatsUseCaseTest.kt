@@ -1,9 +1,8 @@
-package com.compose.domain.usecasee
+package com.compose.domain.usecases
 
 import com.compose.domain.entities.RecentChat
 import com.compose.domain.entities.User
 import com.compose.domain.repos.RecentChatsRepository
-import com.compose.domain.usecases.GetRecentChatsUseCase
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf

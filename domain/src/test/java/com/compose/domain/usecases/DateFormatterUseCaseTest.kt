@@ -1,6 +1,5 @@
-package com.compose.domain.usecasee
+package com.compose.domain.usecases
 
-import com.compose.domain.usecases.DateFormatterUseCase
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.text.SimpleDateFormat

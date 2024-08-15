@@ -1,7 +1,6 @@
-package com.compose.domain.usecasee
+package com.compose.domain.usecases
 import com.compose.domain.repos.AuthRepository
 import com.compose.domain.repos.UserPreferencesRepository
-import com.compose.domain.usecases.LogOutUseCase
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test

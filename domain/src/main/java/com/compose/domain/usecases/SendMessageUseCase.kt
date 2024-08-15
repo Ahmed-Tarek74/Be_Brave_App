@@ -17,7 +17,7 @@ class SendMessageUseCase(
             messagesRepository.sendMessage(message, chatId)
             updateRecentChats(message, homeUser, awayUser)
 
-    }
+        }
 
     private suspend fun updateRecentChats(message: Message, homeUser: User, awayUser: User) {
         recentChatsRepository.updateRecentChats(message.receiverId, homeUser, message.message)
