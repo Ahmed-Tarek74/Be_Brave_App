@@ -3,7 +3,7 @@ package com.compose.data.datasource.auth
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.tasks.await
 
-class FirebaseIAuthDataSource(private val firebaseAuth: FirebaseAuth): IAuthDataSource
+class FirebaseAuthentication(private val firebaseAuth: FirebaseAuth): IAuthentication
 {
      override suspend fun login(email: String, password: String): String {
         val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()

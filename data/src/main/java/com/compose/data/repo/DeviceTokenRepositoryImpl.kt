@@ -10,12 +10,18 @@ class DeviceTokenRepositoryImpl(
     private val deviceTokenDataSource: IDeviceTokenDataSource
 ) : DeviceTokenRepository {
 
-    override suspend fun getAndSaveDeviceToken(userId: String) {
+    override suspend fun saveDeviceToken(userId: String, token: String) {
         try {
-            val token = tokenService.getToken()
             deviceTokenDataSource.saveDeviceToken(userId,token)
         } catch (e: Exception) {
-            throw DeviceTokenException("Failed to get and save device token for user: $userId", e)
+            throw DeviceTokenException("Failed to save device token for user: $userId", e)
+        }
+    }
+    override suspend fun getDeviceToken(): String {
+        return try {
+            tokenService.getToken()
+        } catch (e: Exception) {
+            throw DeviceTokenException("Failed to get device token", e)
         }
     }
     override suspend fun getDeviceToken(userId: String): String {
@@ -25,4 +31,5 @@ class DeviceTokenRepositoryImpl(
             throw DeviceTokenException("Failed to retrieve device token for user: $userId", e)
         }
     }
+
 }

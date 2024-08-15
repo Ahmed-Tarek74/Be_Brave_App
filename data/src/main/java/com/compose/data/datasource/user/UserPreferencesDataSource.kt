@@ -7,10 +7,10 @@ import com.compose.data.constatnts.PreferenceDataStoreConstants
 import com.compose.domain.entities.User
 import kotlinx.coroutines.flow.first
 
-class UserDataStoreManager(private val dataStore: DataStore<Preferences>) {
+class UserPreferencesDataSource(private val dataStore: DataStore<Preferences>):IUserPreferencesDataSource {
 
     // Cache user details into DataStore
-    suspend fun cacheUser(user: User) {
+    override suspend fun cacheUser(user: User) {
         dataStore.edit { preferences ->
             preferences[PreferenceDataStoreConstants.USER_ID] = user.userId
             preferences[PreferenceDataStoreConstants.USERNAME] = user.username
@@ -21,7 +21,7 @@ class UserDataStoreManager(private val dataStore: DataStore<Preferences>) {
     }
 
     // Clear user details from DataStore
-    suspend fun clearUser() {
+    override suspend fun clearUser() {
         dataStore.edit { preferences ->
             preferences.remove(PreferenceDataStoreConstants.USER_ID)
             preferences.remove(PreferenceDataStoreConstants.USERNAME)
@@ -32,7 +32,7 @@ class UserDataStoreManager(private val dataStore: DataStore<Preferences>) {
     }
 
     // Retrieve user details from DataStore
-    suspend fun getUser(): User? {
+    override suspend fun getUser(): User? {
         val preferences = dataStore.data.first()
         val userId = preferences[PreferenceDataStoreConstants.USER_ID] ?: return null
         val username = preferences[PreferenceDataStoreConstants.USERNAME] ?: return null

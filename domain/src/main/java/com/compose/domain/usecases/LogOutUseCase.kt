@@ -9,8 +9,7 @@ class LogOutUseCase(
     private val authRepository: AuthRepository,
     private val userPreferencesRepository: UserPreferencesRepository
 ) {
-    suspend operator fun invoke() = withContext(Dispatchers.IO) {
-
+    suspend operator fun invoke() = withContext(Dispatchers.IO){
         // Perform logout operation
         authRepository.logOut()
         // Clear user preferences
