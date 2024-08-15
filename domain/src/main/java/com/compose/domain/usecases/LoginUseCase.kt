@@ -13,7 +13,8 @@ class LoginUseCase(
     suspend operator fun invoke(email: String, password: String): User {
         val user = authRepository.login(email, password)
         userPreferencesRepository.saveUserPreferences(user)
-        deviceTokenRepository.getAndSaveDeviceToken(user.userId)
+        val token=deviceTokenRepository.getDeviceToken()
+        deviceTokenRepository.saveDeviceToken(user.userId,token)
         return user
     }
 }

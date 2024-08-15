@@ -13,7 +13,7 @@ import kotlin.coroutines.resumeWithException
 
 class FirebaseUserDataSource(
     private val database: FirebaseDatabase
-): UserDataSource {
+): IFirebaseUserDataSource {
     override suspend fun getUserById(userId: String): User? {
         val dataSnapshot = database.reference.child("users").child(userId).get().await()
         return dataSnapshot.getValue(User::class.java)
