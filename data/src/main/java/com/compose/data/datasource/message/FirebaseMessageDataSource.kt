@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
-class FirebaseIMessageDataSource(private val database: FirebaseDatabase) : IMessageDataSource {
+class FirebaseMessageDataSource(private val database: FirebaseDatabase) : IMessageDataSource {
 
 
     override suspend fun sendMessage(message: Message, chatId: String): Message {

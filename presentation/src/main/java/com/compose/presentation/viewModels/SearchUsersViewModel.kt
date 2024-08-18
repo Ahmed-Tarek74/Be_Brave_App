@@ -76,7 +76,7 @@ class SearchUsersViewModel @Inject constructor(
         _viewState.value =
             _viewState.value.copy(isLoading = true, errorMsg = null, emptyListErrorMsg = null)
         try {
-            val filteredUsersList = getUsersUseCase.searchUsers(query, userId)
+            val filteredUsersList = getUsersUseCase(query, userId)
             _viewState.value = _viewState.value.copy(isLoading = false)
             if (filteredUsersList.isEmpty()) {
                 _viewState.value = _viewState.value.copy(emptyListErrorMsg = query)

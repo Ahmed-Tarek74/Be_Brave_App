@@ -38,7 +38,7 @@ class GetUsersUseCaseTest {
         `when`(getUsersRepository.searchUsers(query, userId)).thenReturn(expectedUsers)
 
         // Act
-        val result = getUsersUseCase.searchUsers(query, userId)
+        val result = getUsersUseCase(query, userId)
 
         // Assert
         assertEquals(result, expectedUsers)
@@ -55,7 +55,7 @@ class GetUsersUseCaseTest {
         `when`(getUsersRepository.searchUsers(query, userId)).thenReturn(expectedUsers)
 
         // Act
-        val result = getUsersUseCase.searchUsers(query, userId)
+        val result = getUsersUseCase(query, userId)
 
         // Assert
         assert(result.isEmpty())
@@ -68,10 +68,15 @@ class GetUsersUseCaseTest {
         val query = "john"
         val userId = "user123"
 
-        `when`(getUsersRepository.searchUsers(query, userId)).thenThrow(Exception("Failed to search users"))
+        `when`(
+            getUsersRepository.searchUsers(
+                query,
+                userId
+            )
+        ).thenThrow(Exception("Failed to search users"))
 
         // Act
-        getUsersUseCase.searchUsers(query, userId)
+        getUsersUseCase(query, userId)
 
         // Assert
         verify(getUsersRepository, times(1)).searchUsers(query, userId)
