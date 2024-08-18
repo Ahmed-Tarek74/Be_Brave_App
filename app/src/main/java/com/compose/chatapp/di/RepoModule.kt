@@ -11,7 +11,7 @@ import com.compose.data.constatnts.PreferenceDataStoreConstants
 import com.compose.data.datasource.deviceToken.IDeviceTokenDataSource
 import com.compose.data.datasource.deviceToken.FirebaseIDeviceTokenDataSource
 import com.compose.data.datasource.message.IMessageDataSource
-import com.compose.data.datasource.message.FirebaseIMessageDataSource
+import com.compose.data.datasource.message.FirebaseMessageDataSource
 import com.compose.data.datasource.recentChat.FirebaseRecentChatDataSource
 import com.compose.data.datasource.recentChat.IRecentChatDataSource
 import com.compose.data.datasource.user.FirebaseUserDataSource
@@ -103,7 +103,7 @@ object RepoModule {
     @Provides
     @Singleton
     fun provideMessageDataSource(firebaseDatabase: FirebaseDatabase):
-            IMessageDataSource = FirebaseIMessageDataSource(firebaseDatabase)
+            IMessageDataSource = FirebaseMessageDataSource(firebaseDatabase)
 
     @Provides
     @Singleton

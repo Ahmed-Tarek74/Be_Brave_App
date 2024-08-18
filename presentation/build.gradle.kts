@@ -69,5 +69,11 @@ dependencies {
     implementation(libs.androidx.navigation.ui.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.navigation.dynamic.features.fragment)
+    // For Kotlin Coroutines test
+    testImplementation(libs.kotlinx.coroutines.test)
+    // For Mockito
+    testImplementation(libs.mockito.core)
+    // Mockito-Kotlin
+    testImplementation(libs.mockito.kotlin)
     implementation(project(":domain"))
 }
