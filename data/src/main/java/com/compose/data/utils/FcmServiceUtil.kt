@@ -3,8 +3,9 @@ package com.compose.data.utils
 import android.content.res.AssetManager
 import com.google.auth.oauth2.GoogleCredentials
 import java.io.InputStream
+import javax.inject.Inject
 
-class FcmServiceUtil(private val assetManager: AssetManager) {
+class FcmServiceUtil @Inject constructor(private val assetManager: AssetManager) {
 
     private  val SCOPES = listOf("https://www.googleapis.com/auth/cloud-platform")
 
