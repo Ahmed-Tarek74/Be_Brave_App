@@ -1,14 +1,17 @@
 package com.compose.data.datasource.deviceToken
 
+import com.compose.data.services.ITokenService
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.tasks.await
 
-class FirebaseIDeviceTokenDataSource(
-    private val database: FirebaseDatabase
-) : IDeviceTokenDataSource {
+class DeviceTokenDataSourceImpl(
+    private val database: FirebaseDatabase,
+    private val tokenService: ITokenService
+    ) : IDeviceTokenDataSource {
 
-    override suspend fun saveDeviceToken(userId: String, token: String) {
+    override suspend fun setDeviceTokenToUser(userId: String) {
         try {
+            val token =tokenService.getToken()
             database.reference.child("user_tokens").child(userId).setValue(token).await()
         } catch (e: Exception) {
             throw DeviceTokenException("Failed to save device token for user: $userId", e)

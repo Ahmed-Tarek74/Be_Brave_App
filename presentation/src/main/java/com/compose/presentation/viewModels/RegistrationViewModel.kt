@@ -13,6 +13,7 @@ import com.compose.presentation.intents.RegistrationIntent
 import com.compose.presentation.intents.RegistrationIntent.*
 import com.compose.presentation.viewStates.RegistrationViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -32,39 +33,45 @@ class RegistrationViewModel @Inject constructor(
 
     private val _event = MutableSharedFlow<RegistrationEvent>()
     val event: SharedFlow<RegistrationEvent> = _event
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
+        _state.value = _state.value.copy(
+            errorMessage = exception.message ?: "An unexpected error occurred",
+            isLoading = false,
+        )
+    }
 
     init {
         processIntents()
     }
 
-    private fun onUsernameChanged(username: String) {
+    private fun updateUsername(username: String) {
         _state.value = _state.value.copy(username = username)
         _state.value = _state.value.copy(isRegisterEnabled = isFormValid())
     }
 
-    private fun onPasswordChanged(password: String) {
+    private fun updatePassword(password: String) {
         _state.value = _state.value.copy(password = password)
         _state.value = _state.value.copy(isRegisterEnabled = isFormValid())
     }
 
-    private fun onEmailChanged(email: String) {
+    private fun updateEmail(email: String) {
         _state.value = _state.value.copy(email = email)
         _state.value = _state.value.copy(isRegisterEnabled = isFormValid())
     }
 
-    private fun onConfirmationPasswordChanged(confirmationPassword: String) {
+    private fun updateConfirmationPassword(confirmationPassword: String) {
         _state.value = _state.value.copy(confirmationPassword = confirmationPassword)
         _state.value = _state.value.copy(isRegisterEnabled = isFormValid())
     }
 
-    private fun onPasswordVisibilityChanged(visibilityState: Boolean) {
+    private fun updatePasswordVisibility(visibilityState: Boolean) {
         _state.value =
             _state.value.copy(isPasswordVisible = !visibilityState)
         updatePasswordVisibilityState(isPasswordVisible = _state.value.isPasswordVisible)
     }
 
 
-    private fun onConfirmationPasswordVisibilityChanged(visibilityState: Boolean) {
+    private fun updateConfirmationPasswordVisibility(visibilityState: Boolean) {
         _state.value =
             _state.value.copy(isConfirmationPasswordVisible = !visibilityState)
         updatePasswordVisibilityState(
@@ -79,24 +86,23 @@ class RegistrationViewModel @Inject constructor(
     }
 
     private fun processIntents() {
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             _intent.collectLatest { intent ->
-
                 when (intent) {
                     is Register -> register()
                     is NavigateToLogin -> {
                         _event.emit(backToLogin)
                     }
 
-                    is ConfirmationPasswordChanged -> onConfirmationPasswordChanged(intent.confirmationPassword)
-                    is ConfirmationPasswordVisibilityChanged -> onConfirmationPasswordVisibilityChanged(
+                    is ConfirmationPasswordChanged -> updateConfirmationPassword(intent.confirmationPassword)
+                    is ConfirmationPasswordVisibilityChanged -> updateConfirmationPasswordVisibility(
                         intent.currentVisibility
                     )
 
-                    is EmailChanged -> onEmailChanged(intent.email)
-                    is PasswordChanged -> onPasswordChanged(intent.password)
-                    is PasswordVisibilityChanged -> onPasswordVisibilityChanged(intent.currentVisibility)
-                    is UsernameChanged -> onUsernameChanged(intent.username)
+                    is EmailChanged -> updateEmail(intent.email)
+                    is PasswordChanged -> updatePassword(intent.password)
+                    is PasswordVisibilityChanged -> updatePasswordVisibility(intent.currentVisibility)
+                    is UsernameChanged -> updateUsername(intent.username)
                 }
             }
         }
@@ -115,19 +121,10 @@ class RegistrationViewModel @Inject constructor(
             email = _state.value.email
         )
         _state.value = _state.value.copy(isLoading = true, errorMessage = null)
-        viewModelScope.launch {
-            try {
-                registrationUseCase(user, _state.value.confirmationPassword)
-                _state.value = _state.value.copy(isLoading = false)
-                _state.value = _state.value.copy(isSuccess = true)
-                _event.emit(RegisterSuccessfully)
-            } catch (e: Exception) {
-                _state.value = _state.value.copy(
-                    errorMessage = e.message ?: "Failed to register",
-                    isLoading = false,
-                    isSuccess = false
-                )
-            }
+        viewModelScope.launch(coroutineExceptionHandler) {
+            registrationUseCase(user, _state.value.confirmationPassword)
+            _state.value = _state.value.copy(isLoading = false)
+            _event.emit(RegisterSuccessfully)
         }
     }
 

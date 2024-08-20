@@ -3,10 +3,9 @@ package com.compose.chatapp.di
 import com.compose.domain.repos.AuthRepository
 import com.compose.domain.repos.MessagesRepository
 import com.compose.domain.repos.DeviceTokenRepository
-import com.compose.domain.repos.GetUsersRepository
+import com.compose.domain.repos.UserRepository
 import com.compose.domain.repos.NotificationRepository
 import com.compose.domain.repos.RecentChatsRepository
-import com.compose.domain.repos.UserPreferencesRepository
 import com.compose.domain.usecases.DateFormatterUseCase
 import com.compose.domain.usecases.SendMessageUseCase
 import com.compose.domain.usecases.GetCachedUserUseCase
@@ -29,30 +28,30 @@ object UseCaseModule {
     fun provideLoginUseCase(
         authRepository: AuthRepository,
         deviceTokenRepository: DeviceTokenRepository,
-        userPreferencesRepository: UserPreferencesRepository
-    ): LoginUseCase = LoginUseCase(authRepository, deviceTokenRepository, userPreferencesRepository)
+        userRepository: UserRepository
+    ): LoginUseCase = LoginUseCase(authRepository, deviceTokenRepository, userRepository)
 
     @Provides
-    fun provideRegistrationUseCase(authRepository: AuthRepository):
-            RegistrationUseCase = RegistrationUseCase(authRepository)
+    fun provideRegistrationUseCase(authRepository: AuthRepository,userRepository: UserRepository):
+            RegistrationUseCase = RegistrationUseCase(authRepository,userRepository)
 
     @Provides
     fun provideDateFormatterUseCase():
             DateFormatterUseCase = DateFormatterUseCase()
     @Provides
-    fun provideGetUsersUseCase(getUsersRepository: GetUsersRepository):
-            GetUsersUseCase = GetUsersUseCase(getUsersRepository)
+    fun provideGetUsersUseCase(userRepository: UserRepository):
+            GetUsersUseCase = GetUsersUseCase(userRepository)
 
     @Provides
     fun provideLogOutUseCase(
         authRepository: AuthRepository,
-        userPreferencesRepository: UserPreferencesRepository
+        userRepository: UserRepository
     ):
-            LogOutUseCase = LogOutUseCase(authRepository, userPreferencesRepository)
+            LogOutUseCase = LogOutUseCase(authRepository, userRepository)
 
     @Provides
-    fun provideGetCachedUserUseCase(userPreferencesRepository: UserPreferencesRepository):
-            GetCachedUserUseCase = GetCachedUserUseCase(userPreferencesRepository)
+    fun provideGetCachedUserUseCase(userRepository: UserRepository):
+            GetCachedUserUseCase = GetCachedUserUseCase(userRepository)
 
     @Provides
     fun provideSendMessageUseCase(

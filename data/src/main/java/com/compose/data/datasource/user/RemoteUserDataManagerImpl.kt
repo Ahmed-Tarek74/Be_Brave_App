@@ -8,12 +8,13 @@ import com.google.firebase.database.Query
 import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
-class FirebaseUserDataSource(
+class RemoteUserDataManagerImpl @Inject constructor(
     private val database: FirebaseDatabase
-): IFirebaseUserDataSource {
+): IRemoteUserDataManager {
     override suspend fun getUserById(userId: String): User? {
         val dataSnapshot = database.reference.child("users").child(userId).get().await()
         return dataSnapshot.getValue(User::class.java)
@@ -43,7 +44,7 @@ class FirebaseUserDataSource(
         }
     }
 
-    override suspend fun saveUser(user: User) {
+    override suspend fun addUser(user: User) {
         val userRef = database.reference.child("users").child(user.userId)
         userRef.setValue(user).await()
     }

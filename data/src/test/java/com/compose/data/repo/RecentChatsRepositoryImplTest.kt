@@ -3,6 +3,7 @@ package com.compose.data.repo
 import com.compose.data.datasource.recentChat.IRecentChatDataSource
 import com.compose.domain.entities.RecentChat
 import com.compose.domain.entities.User
+import com.compose.domain.repos.RecentChatsRepository
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -18,7 +19,7 @@ import org.mockito.kotlin.whenever
 class RecentChatsRepositoryImplTest {
 
     private lateinit var recentChatsDataSource: IRecentChatDataSource
-    private lateinit var recentChatsRepository: RecentChatsRepositoryImpl
+    private lateinit var recentChatsRepository: RecentChatsRepository
 
     @Before
     fun setUp() {

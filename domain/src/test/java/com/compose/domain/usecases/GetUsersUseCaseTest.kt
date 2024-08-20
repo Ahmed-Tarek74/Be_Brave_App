@@ -1,7 +1,7 @@
 package com.compose.domain.usecases
 
 import com.compose.domain.entities.User
-import com.compose.domain.repos.GetUsersRepository
+import com.compose.domain.repos.UserRepository
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -15,14 +15,14 @@ import org.mockito.MockitoAnnotations
 class GetUsersUseCaseTest {
 
     @Mock
-    private lateinit var getUsersRepository: GetUsersRepository
+    private lateinit var userRepository: UserRepository
 
     private lateinit var getUsersUseCase: GetUsersUseCase
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        getUsersUseCase = GetUsersUseCase(getUsersRepository)
+        getUsersUseCase = GetUsersUseCase(userRepository)
     }
 
     @Test
@@ -35,14 +35,14 @@ class GetUsersUseCaseTest {
             User(userId = "userId#345", username = "Ahmed Tarek", email = "ahmed@example.com")
         )
 
-        `when`(getUsersRepository.searchUsers(query, userId)).thenReturn(expectedUsers)
+        `when`(userRepository.searchUsers(query, userId)).thenReturn(expectedUsers)
 
         // Act
         val result = getUsersUseCase(query, userId)
 
         // Assert
         assertEquals(result, expectedUsers)
-        verify(getUsersRepository, times(1)).searchUsers(query, userId)
+        verify(userRepository, times(1)).searchUsers(query, userId)
     }
 
     @Test
@@ -52,14 +52,14 @@ class GetUsersUseCaseTest {
         val userId = "user123"
         val expectedUsers = emptyList<User>()
 
-        `when`(getUsersRepository.searchUsers(query, userId)).thenReturn(expectedUsers)
+        `when`(userRepository.searchUsers(query, userId)).thenReturn(expectedUsers)
 
         // Act
         val result = getUsersUseCase(query, userId)
 
         // Assert
         assert(result.isEmpty())
-        verify(getUsersRepository, times(1)).searchUsers(query, userId)
+        verify(userRepository, times(1)).searchUsers(query, userId)
     }
 
     @Test(expected = Exception::class)
@@ -69,7 +69,7 @@ class GetUsersUseCaseTest {
         val userId = "user123"
 
         `when`(
-            getUsersRepository.searchUsers(
+            userRepository.searchUsers(
                 query,
                 userId
             )
@@ -79,6 +79,6 @@ class GetUsersUseCaseTest {
         getUsersUseCase(query, userId)
 
         // Assert
-        verify(getUsersRepository, times(1)).searchUsers(query, userId)
+        verify(userRepository, times(1)).searchUsers(query, userId)
     }
 }

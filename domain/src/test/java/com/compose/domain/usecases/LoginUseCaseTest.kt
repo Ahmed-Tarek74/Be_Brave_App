@@ -1,8 +1,9 @@
 package com.compose.domain.usecases
+
 import com.compose.domain.entities.User
 import com.compose.domain.repos.AuthRepository
 import com.compose.domain.repos.DeviceTokenRepository
-import com.compose.domain.repos.UserPreferencesRepository
+import com.compose.domain.repos.UserRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -16,6 +17,7 @@ import org.mockito.MockitoAnnotations
 import org.mockito.kotlin.any
 
 class LoginUseCaseTest {
+
     @Mock
     private lateinit var authRepository: AuthRepository
 
@@ -23,27 +25,26 @@ class LoginUseCaseTest {
     private lateinit var deviceTokenRepository: DeviceTokenRepository
 
     @Mock
-    private lateinit var userPreferencesRepository: UserPreferencesRepository
+    private lateinit var userRepository: UserRepository
 
     private lateinit var loginUseCase: LoginUseCase
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        loginUseCase = LoginUseCase(authRepository, deviceTokenRepository, userPreferencesRepository)
+        loginUseCase = LoginUseCase(authRepository, deviceTokenRepository, userRepository)
     }
 
     @Test
-    fun `invoke should login, save user preferences, get and save device token`() = runTest {
+    fun `invoke should login, get user by ID, save user preferences, and set device token to user`() = runTest {
         // Arrange
         val email = "test@example.com"
         val password = "password123"
-        val userId="userId#123"
-        val user = User(userId =userId , email = email, password = password)
-        val token = "deviceToken123"
+        val userId = "userId#123"
+        val user = User(userId = userId, email = email, password = password)
 
-        `when`(authRepository.login(email, password)).thenReturn(user)
-        `when`(deviceTokenRepository.getDeviceToken()).thenReturn(token)
+        `when`(authRepository.login(email, password)).thenReturn(userId)
+        `when`(userRepository.getUserById(userId)).thenReturn(user)
 
         // Act
         val result = loginUseCase(email, password)
@@ -51,9 +52,9 @@ class LoginUseCaseTest {
         // Assert
         assert(result == user)
         verify(authRepository, times(1)).login(email, password)
-        verify(userPreferencesRepository, times(1)).saveUserPreferences(user)
-        verify(deviceTokenRepository, times(1)).getDeviceToken()
-        verify(deviceTokenRepository, times(1)).saveDeviceToken(userId, token)
+        verify(userRepository, times(1)).getUserById(userId)
+        verify(userRepository, times(1)).saveUserPreferences(user)
+        verify(deviceTokenRepository, times(1)).setDeviceTokenToUser(userId)
     }
 
     @Test(expected = Exception::class)
@@ -69,52 +70,72 @@ class LoginUseCaseTest {
 
         // Assert
         verify(authRepository, times(1)).login(email, password)
-        verify(userPreferencesRepository, never()).saveUserPreferences(any())
-        verify(deviceTokenRepository, never()).getDeviceToken()
-        verify(deviceTokenRepository, never()).saveDeviceToken(anyString(), anyString())
+        verify(userRepository, never()).getUserById(anyString())
+        verify(userRepository, never()).saveUserPreferences(any())
+        verify(deviceTokenRepository, never()).setDeviceTokenToUser(anyString())
     }
 
     @Test(expected = Exception::class)
-    fun `invoke should throw exception when getting device token fails`() = runTest {
+    fun `invoke should throw exception when getting user by ID fails`() = runTest {
         // Arrange
         val email = "test@example.com"
         val password = "password123"
-        val userId="userId#123"
-        val user = User(userId =userId , email = email, password = password)
+        val userId = "userId#123"
 
-        `when`(authRepository.login(email, password)).thenReturn(user)
-        `when`(deviceTokenRepository.getDeviceToken()).thenThrow(Exception("Failed to retrieve device token"))
+        `when`(authRepository.login(email, password)).thenReturn(userId)
+        `when`(userRepository.getUserById(userId)).thenThrow(Exception("Failed to retrieve user"))
 
         // Act
         loginUseCase(email, password)
 
         // Assert
         verify(authRepository, times(1)).login(email, password)
-        verify(userPreferencesRepository, times(1)).saveUserPreferences(user)
-        verify(deviceTokenRepository, times(1)).getDeviceToken()
-        verify(deviceTokenRepository, never()).saveDeviceToken(anyString(), anyString())
+        verify(userRepository, times(1)).getUserById(userId)
+        verify(userRepository, never()).saveUserPreferences(any())
+        verify(deviceTokenRepository, never()).setDeviceTokenToUser(anyString())
     }
 
     @Test(expected = Exception::class)
-    fun `invoke should throw exception when saving device token fails`() = runTest {
+    fun `invoke should throw exception when saving user preferences fails`() = runTest {
         // Arrange
         val email = "test@example.com"
         val password = "password123"
-        val userId="userId#123"
-        val user = User(userId, email = email, password = password)
-        val token = "deviceToken123"
+        val userId = "userId#123"
+        val user = User(userId = userId, email = email, password = password)
 
-        `when`(authRepository.login(email, password)).thenReturn(user)
-        `when`(deviceTokenRepository.getDeviceToken()).thenReturn(token)
-        `when`(deviceTokenRepository.saveDeviceToken(user.userId, token)).thenThrow(Exception("Failed to save device token"))
+        `when`(authRepository.login(email, password)).thenReturn(userId)
+        `when`(userRepository.getUserById(userId)).thenReturn(user)
+        `when`(userRepository.saveUserPreferences(user)).thenThrow(Exception("Failed to save user preferences"))
 
         // Act
         loginUseCase(email, password)
 
         // Assert
         verify(authRepository, times(1)).login(email, password)
-        verify(userPreferencesRepository, times(1)).saveUserPreferences(user)
-        verify(deviceTokenRepository, times(1)).getDeviceToken()
-        verify(deviceTokenRepository, times(1)).saveDeviceToken(userId, token)
+        verify(userRepository, times(1)).getUserById(userId)
+        verify(userRepository, times(1)).saveUserPreferences(user)
+        verify(deviceTokenRepository, never()).setDeviceTokenToUser(anyString())
+    }
+
+    @Test(expected = Exception::class)
+    fun `invoke should throw exception when setting device token to user fails`() = runTest {
+        // Arrange
+        val email = "test@example.com"
+        val password = "password123"
+        val userId = "userId#123"
+        val user = User(userId = userId, email = email, password = password)
+
+        `when`(authRepository.login(email, password)).thenReturn(userId)
+        `when`(userRepository.getUserById(userId)).thenReturn(user)
+        `when`(deviceTokenRepository.setDeviceTokenToUser(userId)).thenThrow(Exception("Failed to set device token to user"))
+
+        // Act
+        loginUseCase(email, password)
+
+        // Assert
+        verify(authRepository, times(1)).login(email, password)
+        verify(userRepository, times(1)).getUserById(userId)
+        verify(userRepository, times(1)).saveUserPreferences(user)
+        verify(deviceTokenRepository, times(1)).setDeviceTokenToUser(userId)
     }
 }

@@ -15,6 +15,7 @@ import com.compose.presentation.models.UserUiModel
 import com.compose.presentation.viewStates.HomeViewState
 import com.compose.presentation.viewStates.HomeViewState.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -40,68 +41,62 @@ class HomeViewModel @Inject constructor(
 
     private var homeUser: UserUiModel? = savedStateHandle["homeUser"]!!
 
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
+        _viewState.value = Failure(exception.message ?: "An unexpected error occurred")
+    }
+
     init {
-        viewModelScope.launch {
-            loadRecentChats()
-        }
+        loadRecentChats()
         processIntents()
     }
 
     fun setIntent(intent: HomeIntent) {
         viewModelScope.launch {
             _intent.emit(intent)
-
         }
     }
 
     private fun processIntents() {
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             _intent.collectLatest { intent ->
                 handleIntent(intent)
             }
         }
     }
 
-    private fun handleIntent(intent: HomeIntent) {
-        viewModelScope.launch {
-            when (intent) {
-                is SelectRecentChat -> _event.emit(
-                    ChatSelected(
-                        homeUser = homeUser!!,
-                        awayUser = intent.selectedUser
-                    )
+    private suspend fun handleIntent(intent: HomeIntent) {
+        when (intent) {
+            is SelectRecentChat -> _event.emit(
+                ChatSelected(
+                    homeUser = homeUser!!,
+                    awayUser = intent.selectedUser
                 )
+            )
 
-                is StartNewChat -> _event.emit(NavigateToSearchScreen(homeUser!!))
-                is HomeIntent.LoggedOut -> {
-                    logout()
-                }
+            is StartNewChat -> _event.emit(NavigateToSearchScreen(homeUser!!))
+            is HomeIntent.LoggedOut -> {
+                logout()
             }
         }
     }
 
-    private suspend fun loadRecentChats() {
-        _viewState.value = Loading
-        try {
+    private fun loadRecentChats() {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            _viewState.value = Loading
             getRecentChatsUseCase(homeUser!!.userId).collectLatest { recentChats ->
-                _viewState.value=Success(recentChats.toUiModel(this::formatDate))
+                _viewState.value = Success(recentChats.toUiModel(this@HomeViewModel::formatDate))
             }
-        } catch (e: Exception) {
-            _viewState.value = Failure(e.message ?: "Error fetching recent chats")
+        }
+    }
+
+    private fun logout() {
+        viewModelScope.launch(coroutineExceptionHandler) {
+            logOutUseCase()
+            _event.emit(HomeEvent.LoggedOut)
         }
     }
 
     private fun formatDate(date: Long): String {
         return dateFormatterUseCase(date)
     }
-
-    private suspend fun logout() {
-        try {
-            logOutUseCase()
-            _event.emit(HomeEvent.LoggedOut)
-        } catch (e: Exception) {
-            _viewState.value = Failure(e.message ?: "Logout failed")
-        }
-    }
-
 }

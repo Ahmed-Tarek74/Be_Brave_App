@@ -1,15 +1,17 @@
 package com.compose.data.repo
 
-import com.compose.data.remote.FcmApi
+import com.compose.data.datasource.notification.INotificationDataSource
 import com.compose.domain.entities.NotificationMessage
 import com.compose.domain.repos.NotificationRepository
-class NotificationRepositoryImpl(
-    private val fcmApi: FcmApi
+import javax.inject.Inject
+
+class NotificationRepositoryImpl @Inject constructor(
+    private val notificationDataSource: INotificationDataSource
 ) : NotificationRepository {
 
     override suspend fun sendNotification(notification: NotificationMessage) {
         try {
-            fcmApi.sendNotification(notification)
+            notificationDataSource.sendNotification(notification)
         } catch (e: Exception) {
             throw Exception("Failed to send notification")
         }

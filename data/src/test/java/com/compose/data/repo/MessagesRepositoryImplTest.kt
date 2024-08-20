@@ -2,6 +2,7 @@ package com.compose.data.repo
 
 import com.compose.data.datasource.message.IMessageDataSource
 import com.compose.domain.entities.Message
+import com.compose.domain.repos.MessagesRepository
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -15,7 +16,7 @@ import org.mockito.kotlin.whenever
 
 class MessagesRepositoryImplTest {
     private lateinit var  messagesDataSource: IMessageDataSource
-    private lateinit var messagesRepository : MessagesRepositoryImpl
+    private lateinit var messagesRepository : MessagesRepository
 
     @Before
     fun setUp(){
