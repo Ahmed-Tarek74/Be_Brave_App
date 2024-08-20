@@ -26,3 +26,9 @@ fun UserUiModel.mapToUser(): User {
     )
 
 }
+fun List<User>.toUiModel(): List<UserUiModel> {
+    val userUiModelList = this.map { user ->
+        user.mapToUserUiModel()
+    }
+    return userUiModelList
+}

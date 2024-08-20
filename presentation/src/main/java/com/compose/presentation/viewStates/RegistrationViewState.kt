@@ -13,7 +13,6 @@ data class RegistrationViewState(
     val isConfirmationPasswordVisible: Boolean = false,
     val isRegisterEnabled: Boolean = false,
     val isLoading: Boolean = false,
-    val isSuccess: Boolean = false,
     val errorMessage: String? = null,
     val passwordVisualTransformation: VisualTransformation = PasswordVisualTransformation(),
     val passwordTrailingIcon: Int = R.drawable.baseline_visibility_off_24,

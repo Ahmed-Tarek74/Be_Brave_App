@@ -119,7 +119,7 @@ fun RegistrationScreen(
             )
             Spacer(modifier = Modifier.padding(20.dp))
 
-            viewState.value.errorMessage?.let {errorMsg->
+            viewState.value.errorMessage?.let { errorMsg->
                 ErrorMsgCard(errorMsg = errorMsg)
             }
             if (viewState.value.isLoading) {

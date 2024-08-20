@@ -2,8 +2,8 @@ package com.compose.data.datasource.user
 
 import com.compose.domain.entities.User
 
-interface IUserPreferencesDataSource {
+interface IUserPreferencesManager {
     suspend fun cacheUser(user: User)
     suspend fun clearUser()
-    suspend fun getUser(): User?
+    suspend fun getCachedUser(): User?
 }

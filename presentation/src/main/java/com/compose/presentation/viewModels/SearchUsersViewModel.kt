@@ -3,13 +3,12 @@ package com.compose.presentation.viewModels
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compose.domain.entities.User
 import com.compose.presentation.intents.SearchUsersIntent
 import com.compose.presentation.intents.SearchUsersIntent.*
 import com.compose.presentation.viewStates.SearchUsersViewState
 import com.compose.domain.usecases.GetUsersUseCase
 import com.compose.presentation.events.SearchUsersEvent
-import com.compose.presentation.mappers.mapToUserUiModel
+import com.compose.presentation.mappers.toUiModel
 import com.compose.presentation.models.UserUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -44,13 +43,11 @@ class SearchUsersViewModel @Inject constructor(
     private fun processIntents() {
         viewModelScope.launch {
             _intent.collectLatest { intent ->
-
                 when (intent) {
                     is UpdateSearchQuery -> {
                         onQueryChanged(intent.searchQuery)
                         searchUsers(intent.searchQuery, homeUser.userId)
                     }
-
                     is SelectUser -> {
                         _event.emit(
                             SearchUsersEvent.UserSelected(
@@ -61,7 +58,6 @@ class SearchUsersViewModel @Inject constructor(
                     }
                     is BackToHome -> _event.emit(SearchUsersEvent.BackToHome(homeUser))
                 }
-
             }
         }
     }
@@ -71,7 +67,6 @@ class SearchUsersViewModel @Inject constructor(
             _intent.emit(intent)
         }
     }
-
     private suspend fun searchUsers(query: String, userId: String) {
         _viewState.value =
             _viewState.value.copy(isLoading = true, errorMsg = null, emptyListErrorMsg = null)
@@ -81,17 +76,12 @@ class SearchUsersViewModel @Inject constructor(
             if (filteredUsersList.isEmpty()) {
                 _viewState.value = _viewState.value.copy(emptyListErrorMsg = query)
             } else {
-                _viewState.value = _viewState.value.copy(usersList = map(filteredUsersList))
+                _viewState.value = _viewState.value.copy(usersList = filteredUsersList.toUiModel())
             }
         } catch (e: Exception) {
             _viewState.value =
                 _viewState.value.copy(errorMsg = e.message ?: "Failed to search for $query", isLoading = false)
         }
     }
-    private fun map(userList: List<User>): List<UserUiModel> {
-        val usersUiModelList = userList.map { user ->
-            user.mapToUserUiModel()
-        }
-        return usersUiModelList
-    }
+
 }

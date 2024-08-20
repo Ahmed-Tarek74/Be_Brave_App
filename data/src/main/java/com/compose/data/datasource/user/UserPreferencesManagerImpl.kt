@@ -6,8 +6,10 @@ import androidx.datastore.preferences.core.edit
 import com.compose.data.constatnts.PreferenceDataStoreConstants
 import com.compose.domain.entities.User
 import kotlinx.coroutines.flow.first
+import javax.inject.Inject
 
-class UserPreferencesDataSource(private val dataStore: DataStore<Preferences>):IUserPreferencesDataSource {
+class UserPreferencesManagerImpl @Inject constructor(private val dataStore: DataStore<Preferences>) :
+    IUserPreferencesManager {
 
     // Cache user details into DataStore
     override suspend fun cacheUser(user: User) {
@@ -32,7 +34,7 @@ class UserPreferencesDataSource(private val dataStore: DataStore<Preferences>):I
     }
 
     // Retrieve user details from DataStore
-    override suspend fun getUser(): User? {
+    override suspend fun getCachedUser(): User? {
         val preferences = dataStore.data.first()
         val userId = preferences[PreferenceDataStoreConstants.USER_ID] ?: return null
         val username = preferences[PreferenceDataStoreConstants.USERNAME] ?: return null
