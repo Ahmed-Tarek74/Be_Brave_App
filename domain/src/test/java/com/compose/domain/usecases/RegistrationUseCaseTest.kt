@@ -2,10 +2,14 @@ package com.compose.domain.usecases
 
 import com.compose.domain.entities.User
 import com.compose.domain.repos.AuthRepository
+import com.compose.domain.repos.UserRepository
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.times
@@ -17,16 +21,19 @@ class RegistrationUseCaseTest {
     @Mock
     private lateinit var authRepository: AuthRepository
 
+    @Mock
+    private lateinit var userRepository: UserRepository
+
     private lateinit var registrationUseCase: RegistrationUseCase
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        registrationUseCase = RegistrationUseCase(authRepository)
+        registrationUseCase = RegistrationUseCase(authRepository, userRepository)
     }
 
     @Test
-    fun `invoke should register user when passwords match`() = runTest {
+    fun `invoke should register user and add user to repository when passwords match`() = runTest {
         // Arrange
         val user = User(email = "test@example.com", password = "password123")
         val confirmationPassword = "password123"
@@ -38,6 +45,7 @@ class RegistrationUseCaseTest {
         // Assert
         assertEquals(user, registeredUser)
         verify(authRepository, times(1)).register(user)
+        verify(userRepository, times(1)).addUser(user)
     }
 
     @Test(expected = Exception::class)
@@ -47,10 +55,16 @@ class RegistrationUseCaseTest {
         val confirmationPassword = "differentPassword"
 
         // Act
-        registrationUseCase(user, confirmationPassword)
-
+        val actualException = assertThrows(Exception::class.java) {
+            runBlocking {
+                registrationUseCase(user, confirmationPassword)
+            }
+        }
         // Assert (Exception is expected)
+        val expectedExceptionMsg="Passwords do not match"
+        assertEquals(expectedExceptionMsg, actualException.message)
         verify(authRepository, never()).register(user)
+        verify(userRepository, never()).addUser(any())
     }
 
     @Test(expected = Exception::class)
@@ -59,11 +73,11 @@ class RegistrationUseCaseTest {
         val user = User(email = "test@example.com", password = "password123")
         val confirmationPassword = "password123"
         `when`(authRepository.register(user)).thenThrow(Exception("Registration failed"))
-
         // Act
         registrationUseCase(user, confirmationPassword)
 
         // Assert (Exception is expected)
         verify(authRepository, times(1)).register(user)
+        verify(userRepository, never()).addUser(any())
     }
 }
