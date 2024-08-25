@@ -17,6 +17,7 @@ import com.compose.presentation.mappers.toUiModel
 import com.compose.presentation.models.UserUiModel
 import com.compose.presentation.viewStates.ChatViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -41,6 +42,9 @@ class ChatViewModel @Inject constructor(
     val event: SharedFlow<ChattingEvent> = _event
     private val awayUser: UserUiModel = savedStateHandle["awayUser"]!!
     private val homeUser: UserUiModel = savedStateHandle["homeUser"]!!
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
+        handleException(exception)
+    }
 
     init {
         fetchRecentMessages()
@@ -48,7 +52,7 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun processIntent() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             _intent.collectLatest { intent ->
                 when (intent) {
                     is BackToHome -> _event.emit(ChattingEvent.BackToHome(homeUser))
@@ -60,7 +64,7 @@ class ChatViewModel @Inject constructor(
     }
 
     fun setIntent(intent: ChatIntent) {
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             _intent.emit(intent)
         }
     }
@@ -143,5 +147,11 @@ class ChatViewModel @Inject constructor(
                 )
             }
         }
+    }
+    private fun handleException(exception: Throwable) {
+        _viewState.value = _viewState.value.copy(
+            errorMsg = exception.message ?: "An unexpected error occurred. Please try again.",
+            isLoading = false
+        )
     }
 }

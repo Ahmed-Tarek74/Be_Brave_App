@@ -13,6 +13,7 @@ import com.compose.presentation.intents.RegistrationIntent
 import com.compose.presentation.intents.RegistrationIntent.*
 import com.compose.presentation.viewStates.RegistrationViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +34,9 @@ class RegistrationViewModel @Inject constructor(
 
     private val _event = MutableSharedFlow<RegistrationEvent>()
     val event: SharedFlow<RegistrationEvent> = _event
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
+        handleException(exception)
+    }
 
     init {
         processIntents()
@@ -80,7 +84,7 @@ class RegistrationViewModel @Inject constructor(
     }
 
     private fun processIntents() =
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             _intent.collectLatest { intent ->
                 when (intent) {
                     is Register -> register()
@@ -142,5 +146,11 @@ class RegistrationViewModel @Inject constructor(
                 confirmationPasswordIconDescription = if (isPasswordVisible) R.string.show_password else R.string.hide_password
             )
         }
+    }
+    private fun handleException(exception: Throwable) {
+        _state.value = _state.value.copy(
+            errorMessage = exception.message ?: "An unexpected error occurred. Please try again.",
+            isLoading = false
+        )
     }
 }

@@ -15,6 +15,7 @@ import com.compose.presentation.models.UserUiModel
 import com.compose.presentation.viewStates.HomeViewState
 import com.compose.presentation.viewStates.HomeViewState.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,11 +36,12 @@ class HomeViewModel @Inject constructor(
     private val _intent = MutableSharedFlow<HomeIntent>()
     private val _viewState = MutableStateFlow<HomeViewState>(Loading)
     private val _event = MutableSharedFlow<HomeEvent>()
-
     val viewState: StateFlow<HomeViewState> = _viewState
     val event: SharedFlow<HomeEvent> = _event
-
     private var homeUser: UserUiModel? = savedStateHandle["homeUser"]!!
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
+        handleException(exception)
+    }
 
     init {
         loadRecentChats()
@@ -47,13 +49,13 @@ class HomeViewModel @Inject constructor(
     }
 
     fun setIntent(intent: HomeIntent) {
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             _intent.emit(intent)
         }
     }
 
     private fun processIntents() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             _intent.collectLatest { intent ->
                 handleIntent(intent)
             }
@@ -77,7 +79,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadRecentChats() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             _viewState.value = Loading
             try {
                 getRecentChatsUseCase(homeUser!!.userId).collectLatest { recentChats ->
@@ -100,5 +102,10 @@ class HomeViewModel @Inject constructor(
     }
     private fun formatDate(date: Long): String {
         return dateFormatterUseCase(date)
+    }
+
+    private fun handleException(exception: Throwable) {
+        _viewState.value =
+            Failure(exception.message ?: "An unexpected error occurred. Please try again.")
     }
 }

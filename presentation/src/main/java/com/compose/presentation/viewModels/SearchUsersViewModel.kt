@@ -11,6 +11,7 @@ import com.compose.presentation.events.SearchUsersEvent
 import com.compose.presentation.mappers.toUiModel
 import com.compose.presentation.models.UserUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +33,9 @@ class SearchUsersViewModel @Inject constructor(
     val event: SharedFlow<SearchUsersEvent> = _event
     private val _intent = MutableSharedFlow<SearchUsersIntent>()
     private var homeUser: UserUiModel = savedStateHandle["homeUser"]!!
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
+        handleException(exception)
+    }
 
     init {
         processIntents()
@@ -42,22 +46,27 @@ class SearchUsersViewModel @Inject constructor(
     }
 
     private fun processIntents() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             _intent.collectLatest { intent ->
                 when (intent) {
                     is UpdateSearchQuery -> {
                         onQueryChanged(intent.searchQuery)
                         searchUsers(intent.searchQuery, homeUser.userId)
                     }
+
                     is SelectUser -> {
-                        _event.emit(SearchUsersEvent.UserSelected(homeUser = homeUser, awayUser = intent.user))
+                        _event.emit(
+                            SearchUsersEvent.UserSelected(
+                                homeUser = homeUser,
+                                awayUser = intent.user
+                            )
+                        )
                     }
                     is BackToHome -> _event.emit(SearchUsersEvent.BackToHome(homeUser))
                 }
             }
         }
     }
-
     fun setIntent(intent: SearchUsersIntent) {
         viewModelScope.launch {
             _intent.emit(intent)
@@ -76,7 +85,17 @@ class SearchUsersViewModel @Inject constructor(
             }
         } catch (e: Exception) {
             _viewState.value =
-                _viewState.value.copy(errorMsg = e.message ?: "Failed to search for $query", isLoading = false)
+                _viewState.value.copy(
+                    errorMsg = e.message ?: "Failed to search for $query",
+                    isLoading = false
+                )
         }
+    }
+
+    private fun handleException(exception: Throwable) {
+        _viewState.value = _viewState.value.copy(
+            errorMsg = exception.message ?: "An unexpected error occurred. Please try again.",
+            isLoading = false
+        )
     }
 }

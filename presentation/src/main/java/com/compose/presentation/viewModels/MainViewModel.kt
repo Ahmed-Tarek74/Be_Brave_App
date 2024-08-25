@@ -1,15 +1,14 @@
 package com.compose.presentation.viewModels
 
-import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.compose.domain.entities.User
 import com.compose.domain.usecases.GetCachedUserUseCase
 import com.compose.presentation.R
 import com.compose.presentation.events.StartDestinationEvent
 import com.compose.presentation.events.StartDestinationEvent.*
 import com.compose.presentation.intents.NotificationPermissionCommand
 import com.compose.presentation.intents.NotificationPermissionCommand.*
-import com.compose.presentation.mappers.mapToUserUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -18,13 +17,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val getCachedUserUseCase: GetCachedUserUseCase,
-) :
-    ViewModel() {
+    private val getCachedUserUseCase: GetCachedUserUseCase
+) : ViewModel() {
 
     private val _navigationEvent = MutableSharedFlow<StartDestinationEvent>()
     val navigationCommand = _navigationEvent.asSharedFlow()
@@ -32,7 +31,6 @@ class MainViewModel @Inject constructor(
     private val _notificationPermissionCommand =
         MutableStateFlow<NotificationPermissionCommand?>(null)
     val notificationPermissionCommand: StateFlow<NotificationPermissionCommand?> get() = _notificationPermissionCommand.asStateFlow()
-
     fun checkNotificationPermission() {
         _notificationPermissionCommand.value = Request
     }
@@ -53,20 +51,16 @@ class MainViewModel @Inject constructor(
     }
 
     private fun observeLoginStatus() {
-        var bundle: Bundle?
+        var cachedUser: User? = null
         var destination: Int
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             try {
-                val cachedUser = getCachedUserUseCase()
+                cachedUser = withContext(Dispatchers.IO) { getCachedUserUseCase() }
                 destination = R.id.homeFragment
-                bundle = Bundle().apply {
-                    putSerializable("homeUser", cachedUser.mapToUserUiModel())
-                }
             } catch (e: Exception) {
                 destination = R.id.loginFragment
-                bundle = null
             }
-            _navigationEvent.emit(To(destination, bundle))
+            _navigationEvent.emit(To(destination, cachedUser))
         }
     }
 }

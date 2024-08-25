@@ -14,6 +14,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import com.compose.presentation.events.StartDestinationEvent.*
 import com.compose.presentation.intents.NotificationPermissionCommand.*
+import com.compose.presentation.mappers.mapToUserUiModel
+import com.compose.presentation.models.UserUiModel
 import com.compose.presentation.viewModels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -43,7 +45,8 @@ class MainActivity : FragmentActivity() {
                 val graph = navController.navInflater.inflate(R.navigation.nav_graph)
                 if (command is To) {
                     graph.setStartDestination(command.destination)
-                    navController.setGraph(graph, command.args)
+                    val bundle = createBundle(command.user?.mapToUserUiModel())
+                    navController.setGraph(graph, bundle)
                 }
             }
         }
@@ -95,4 +98,12 @@ class MainActivity : FragmentActivity() {
             .setNegativeButton("No thanks", null)
             .show()
     }
+    private fun createBundle(userUiModel: UserUiModel?): Bundle? {
+        return userUiModel?.let {
+            Bundle().apply {
+                putSerializable("homeUser", it)
+            }
+        }
+    }
+
 }

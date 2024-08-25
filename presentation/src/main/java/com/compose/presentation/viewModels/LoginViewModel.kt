@@ -13,6 +13,7 @@ import com.compose.presentation.intents.LoginIntent.*
 import com.compose.presentation.mappers.mapToUserUiModel
 import com.compose.presentation.viewStates.LoginViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -30,6 +31,9 @@ class LoginViewModel @Inject constructor(
     val viewState: StateFlow<LoginViewState> = _viewState
     private val _event = MutableSharedFlow<LoginEvent>()
     val event: SharedFlow<LoginEvent> = _event
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
+        handleException(exception)
+    }
 
     init {
         processIntents()
@@ -56,13 +60,13 @@ class LoginViewModel @Inject constructor(
     }
 
     fun setIntent(intent: LoginIntent) {
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             _intent.emit(intent)
         }
     }
-
     private fun processIntents() {
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler)
+        {
             _intent.collectLatest { intent ->
                 when (intent) {
                     is Login -> login()
@@ -74,6 +78,7 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
+
     private fun updatePasswordVisibilityState() {
         val isPasswordVisible = _viewState.value.isPasswordVisible
         _viewState.value = _viewState.value.copy(
@@ -97,5 +102,12 @@ class LoginViewModel @Inject constructor(
                 isLoading = false
             )
         }
+    }
+
+    private fun handleException(exception: Throwable) {
+        _viewState.value = _viewState.value.copy(
+            errorMessage = exception.message ?: "An unexpected error occurred. Please try again.",
+            isLoading = false
+        )
     }
 }
