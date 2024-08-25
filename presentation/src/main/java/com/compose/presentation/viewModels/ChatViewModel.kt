@@ -17,7 +17,7 @@ import com.compose.presentation.mappers.toUiModel
 import com.compose.presentation.models.UserUiModel
 import com.compose.presentation.viewStates.ChatViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -48,7 +48,7 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun processIntent() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _intent.collectLatest { intent ->
                 when (intent) {
                     is BackToHome -> _event.emit(ChattingEvent.BackToHome(homeUser))
@@ -123,26 +123,25 @@ class ChatViewModel @Inject constructor(
             isLoading = true,
             errorMsg = null
         )
-
-        val handler = CoroutineExceptionHandler { _, exception ->
-            println("CoroutineExceptionHandler got $exception")
-            _viewState.value = _viewState.value.copy(
-                errorMsg = exception.message ?: "Failed to fetch recent messages",
-                isLoading = false
-            )
-        }
-        viewModelScope.launch(handler) {
-            getRecentMessagesUseCase(homeUser.userId, awayUser.userId)
-                .collectLatest { messagesList ->
-                    _viewState.value = _viewState.value.copy(
-                        messagesList = (messagesList.toUiModel(
-                            awayUser.userId,
-                            this@ChatViewModel::formatDate
-                        )),
-                        isLoading = false,
-                        errorMsg = null
-                    )
-                }
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                getRecentMessagesUseCase(homeUser.userId, awayUser.userId)
+                    .collectLatest { messagesList ->
+                        _viewState.value = _viewState.value.copy(
+                            messagesList = (messagesList.toUiModel(
+                                awayUser.userId,
+                                this@ChatViewModel::formatDate
+                            )),
+                            isLoading = false,
+                            errorMsg = null
+                        )
+                    }
+            } catch (e: Exception) {
+                _viewState.value = _viewState.value.copy(
+                    errorMsg = e.message ?: "Failed To Load Recent Messages",
+                    isLoading = false
+                )
+            }
         }
     }
 }

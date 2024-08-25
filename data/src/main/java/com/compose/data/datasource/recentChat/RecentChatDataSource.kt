@@ -4,7 +4,7 @@ import com.compose.domain.entities.RecentChat
 import com.compose.domain.entities.User
 import kotlinx.coroutines.flow.Flow
 
-interface IRecentChatDataSource {
+interface RecentChatDataSource {
     fun fetchRecentChats(userId: String): Flow<List<RecentChat>>
     suspend fun updateRecentChat(homeUserId: String, awayUser: User, message: String)
 }

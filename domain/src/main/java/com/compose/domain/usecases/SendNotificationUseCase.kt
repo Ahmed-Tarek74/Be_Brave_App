@@ -7,19 +7,15 @@ import com.compose.domain.entities.NotificationMessage
 import com.compose.domain.entities.User
 import com.compose.domain.repos.DeviceTokenRepository
 import com.compose.domain.repos.NotificationRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class SendNotificationUseCase(
     private val notificationRepository: NotificationRepository,
     private val deviceTokenRepository: DeviceTokenRepository
 ) {
     suspend operator fun invoke(sender: User, message: Message) {
-        withContext(Dispatchers.IO) {
-            val token = deviceTokenRepository.getDeviceToken(message.receiverId)
-            val notification = createNotification(sender, message, token)
-            notificationRepository.sendNotification(notification)
-        }
+        val token = deviceTokenRepository.getDeviceToken(message.receiverId)
+        val notification = createNotification(sender, message, token)
+        notificationRepository.sendNotification(notification)
     }
 }
 

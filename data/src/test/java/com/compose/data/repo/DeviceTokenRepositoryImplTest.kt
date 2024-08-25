@@ -1,7 +1,7 @@
 package com.compose.data.repo
 
 import com.compose.data.datasource.deviceToken.DeviceTokenException
-import com.compose.data.datasource.deviceToken.IDeviceTokenDataSource
+import com.compose.data.datasource.deviceToken.DeviceTokenDataSource
 import com.compose.domain.repos.DeviceTokenRepository
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -14,7 +14,7 @@ import org.mockito.kotlin.whenever
 
 class DeviceTokenRepositoryImplTest {
 
-    private lateinit var deviceTokenDataSource: IDeviceTokenDataSource
+    private lateinit var deviceTokenDataSource: DeviceTokenDataSource
     private lateinit var deviceTokenRepository: DeviceTokenRepository
 
     @Before

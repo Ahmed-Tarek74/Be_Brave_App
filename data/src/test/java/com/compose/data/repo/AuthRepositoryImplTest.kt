@@ -1,6 +1,6 @@
 package com.compose.data.repo
 
-import com.compose.data.datasource.auth.IAuthentication
+import com.compose.data.datasource.auth.AuthenticationDataSource
 import com.compose.domain.entities.User
 import com.compose.domain.repos.AuthRepository
 import junit.framework.TestCase.assertEquals
@@ -15,13 +15,13 @@ import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 class AuthRepositoryImplTest {
 
-    private lateinit var firebaseAuth: IAuthentication
+    private lateinit var firebaseAuth: AuthenticationDataSource
     private lateinit var authRepository: AuthRepository
 
     @Before
     fun setUp() {
         MockitoAnnotations.openMocks(this)
-        firebaseAuth = mock(IAuthentication::class.java)
+        firebaseAuth = mock(AuthenticationDataSource::class.java)
         authRepository = AuthRepositoryImpl(firebaseAuth)
     }
 

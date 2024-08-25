@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 class UserPreferencesManagerImpl @Inject constructor(private val dataStore: DataStore<Preferences>) :
-    IUserPreferencesManager {
+    UserPreferencesManager {
 
     // Cache user details into DataStore
     override suspend fun cacheUser(user: User) {

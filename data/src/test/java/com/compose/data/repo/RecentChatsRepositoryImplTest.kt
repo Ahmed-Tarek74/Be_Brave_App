@@ -1,6 +1,6 @@
 package com.compose.data.repo
 
-import com.compose.data.datasource.recentChat.IRecentChatDataSource
+import com.compose.data.datasource.recentChat.RecentChatDataSource
 import com.compose.domain.entities.RecentChat
 import com.compose.domain.entities.User
 import com.compose.domain.repos.RecentChatsRepository
@@ -18,7 +18,7 @@ import org.mockito.kotlin.whenever
 
 class RecentChatsRepositoryImplTest {
 
-    private lateinit var recentChatsDataSource: IRecentChatDataSource
+    private lateinit var recentChatsDataSource: RecentChatDataSource
     private lateinit var recentChatsRepository: RecentChatsRepository
 
     @Before

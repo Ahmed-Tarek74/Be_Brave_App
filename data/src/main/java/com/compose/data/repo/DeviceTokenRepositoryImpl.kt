@@ -1,11 +1,11 @@
 package com.compose.data.repo
 
-import com.compose.data.datasource.deviceToken.IDeviceTokenDataSource
+import com.compose.data.datasource.deviceToken.DeviceTokenDataSource
 import com.compose.data.datasource.deviceToken.DeviceTokenException
 import com.compose.domain.repos.DeviceTokenRepository
 
 class DeviceTokenRepositoryImpl(
-    private val deviceTokenDataSource: IDeviceTokenDataSource
+    private val deviceTokenDataSource: DeviceTokenDataSource
 ) : DeviceTokenRepository {
 
     override suspend fun setDeviceTokenToUser(userId: String) {

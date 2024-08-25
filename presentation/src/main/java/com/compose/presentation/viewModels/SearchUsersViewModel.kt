@@ -11,6 +11,7 @@ import com.compose.presentation.events.SearchUsersEvent
 import com.compose.presentation.mappers.toUiModel
 import com.compose.presentation.models.UserUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -41,7 +42,7 @@ class SearchUsersViewModel @Inject constructor(
     }
 
     private fun processIntents() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _intent.collectLatest { intent ->
                 when (intent) {
                     is UpdateSearchQuery -> {
@@ -49,12 +50,7 @@ class SearchUsersViewModel @Inject constructor(
                         searchUsers(intent.searchQuery, homeUser.userId)
                     }
                     is SelectUser -> {
-                        _event.emit(
-                            SearchUsersEvent.UserSelected(
-                                homeUser = homeUser,
-                                awayUser = intent.user
-                            )
-                        )
+                        _event.emit(SearchUsersEvent.UserSelected(homeUser = homeUser, awayUser = intent.user))
                     }
                     is BackToHome -> _event.emit(SearchUsersEvent.BackToHome(homeUser))
                 }
@@ -83,5 +79,4 @@ class SearchUsersViewModel @Inject constructor(
                 _viewState.value.copy(errorMsg = e.message ?: "Failed to search for $query", isLoading = false)
         }
     }
-
 }

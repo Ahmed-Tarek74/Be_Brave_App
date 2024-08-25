@@ -1,12 +1,12 @@
 package com.compose.data.repo
 
-import com.compose.data.datasource.message.IMessageDataSource
+import com.compose.data.datasource.message.MessageDataSource
 import com.compose.domain.entities.Message
 import com.compose.domain.repos.MessagesRepository
 import kotlinx.coroutines.flow.Flow
 
 class MessagesRepositoryImpl(
-    private val messagesDataSource: IMessageDataSource
+    private val messagesDataSource: MessageDataSource
 ) : MessagesRepository {
 
     override suspend fun sendMessage(message: Message, chatId: String): Message {

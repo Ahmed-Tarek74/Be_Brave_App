@@ -11,6 +11,7 @@ import com.compose.presentation.intents.NotificationPermissionCommand
 import com.compose.presentation.intents.NotificationPermissionCommand.*
 import com.compose.presentation.mappers.mapToUserUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -54,7 +55,7 @@ class MainViewModel @Inject constructor(
     private fun observeLoginStatus() {
         var bundle: Bundle?
         var destination: Int
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val cachedUser = getCachedUserUseCase()
                 destination = R.id.homeFragment

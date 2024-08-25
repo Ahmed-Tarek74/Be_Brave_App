@@ -11,8 +11,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
-class FirebaseRecentChatDataSource(private val database: FirebaseDatabase) :
-    IRecentChatDataSource {
+class RecentChatDataSourceImpl(private val database: FirebaseDatabase) :
+    RecentChatDataSource {
 
     override fun fetchRecentChats(userId: String): Flow<List<RecentChat>> = callbackFlow {
         val recentChatsRef = database.reference.child("recent_chats").child(userId)

@@ -13,7 +13,7 @@ import com.compose.presentation.intents.RegistrationIntent
 import com.compose.presentation.intents.RegistrationIntent.*
 import com.compose.presentation.viewStates.RegistrationViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -33,12 +33,6 @@ class RegistrationViewModel @Inject constructor(
 
     private val _event = MutableSharedFlow<RegistrationEvent>()
     val event: SharedFlow<RegistrationEvent> = _event
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
-        _state.value = _state.value.copy(
-            errorMessage = exception.message ?: "An unexpected error occurred",
-            isLoading = false,
-        )
-    }
 
     init {
         processIntents()
@@ -85,8 +79,8 @@ class RegistrationViewModel @Inject constructor(
                 && _state.value.confirmationPassword.isNotEmpty() && _state.value.email.isNotEmpty()
     }
 
-    private fun processIntents() {
-        viewModelScope.launch(coroutineExceptionHandler) {
+    private fun processIntents() =
+        viewModelScope.launch(Dispatchers.IO) {
             _intent.collectLatest { intent ->
                 when (intent) {
                     is Register -> register()
@@ -106,7 +100,6 @@ class RegistrationViewModel @Inject constructor(
                 }
             }
         }
-    }
 
     fun setIntent(intent: RegistrationIntent) {
         viewModelScope.launch {
@@ -114,20 +107,24 @@ class RegistrationViewModel @Inject constructor(
         }
     }
 
-    private fun register() {
-        val user = User(
-            username = _state.value.username,
-            password = _state.value.password,
-            email = _state.value.email
-        )
-        _state.value = _state.value.copy(isLoading = true, errorMessage = null)
-        viewModelScope.launch(coroutineExceptionHandler) {
+    private suspend fun register() {
+        try {
+            val user = User(
+                username = _state.value.username,
+                password = _state.value.password,
+                email = _state.value.email
+            )
+            _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             registrationUseCase(user, _state.value.confirmationPassword)
             _state.value = _state.value.copy(isLoading = false)
             _event.emit(RegisterSuccessfully)
+        } catch (e: Exception) {
+            _state.value = _state.value.copy(
+                errorMessage = e.message ?: "Failed to register",
+                isLoading = false,
+            )
         }
     }
-
     private fun updatePasswordVisibilityState(
         isPasswordVisible: Boolean,
         isConfirmationPassword: Boolean = false

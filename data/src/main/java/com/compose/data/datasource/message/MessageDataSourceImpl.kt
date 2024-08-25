@@ -1,6 +1,7 @@
 package com.compose.data.datasource.message
 
 import com.compose.domain.entities.Message
+import com.compose.domain.utils.EventLogger
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -10,12 +11,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
-class FirebaseMessageDataSource(private val database: FirebaseDatabase) : IMessageDataSource {
+class MessageDataSourceImpl(
+    private val database: FirebaseDatabase,
+    private val eventLogger: EventLogger
+) : MessageDataSource {
 
 
     override suspend fun sendMessage(message: Message, chatId: String): Message {
         val messageWithTimestamp = message.copy(timestamp = System.currentTimeMillis())
         return try {
+            eventLogger.logEvent("AttemptToSendMessage", mapOf("chatID" to chatId))
             val messagesRef = database.reference.child("messages").child(chatId)
             messagesRef.push().setValue(messageWithTimestamp).await()
             messageWithTimestamp
@@ -28,6 +33,7 @@ class FirebaseMessageDataSource(private val database: FirebaseDatabase) : IMessa
         val messagesRef = database.reference.child("messages").child(chatId)
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                eventLogger.logEvent("AttemptToFetchRecentMessages", mapOf("chatID" to chatId))
                 val messages = snapshot.children.mapNotNull { it.getValue(Message::class.java) }
                 trySend(messages)
             }

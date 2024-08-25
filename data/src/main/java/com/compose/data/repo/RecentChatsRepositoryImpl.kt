@@ -3,11 +3,11 @@ package com.compose.data.repo
 import com.compose.domain.entities.RecentChat
 import com.compose.domain.entities.User
 import com.compose.domain.repos.RecentChatsRepository
-import com.compose.data.datasource.recentChat.IRecentChatDataSource
+import com.compose.data.datasource.recentChat.RecentChatDataSource
 import kotlinx.coroutines.flow.Flow
 
 class RecentChatsRepositoryImpl(
-    private val recentChatsDataSource: IRecentChatDataSource
+    private val recentChatsDataSource: RecentChatDataSource
 ) : RecentChatsRepository {
 
     override fun getRecentChats(userId: String): Flow<List<RecentChat>>{
