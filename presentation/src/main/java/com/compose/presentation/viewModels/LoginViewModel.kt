@@ -13,7 +13,6 @@ import com.compose.presentation.intents.LoginIntent.*
 import com.compose.presentation.mappers.mapToUserUiModel
 import com.compose.presentation.viewStates.LoginViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -26,23 +25,11 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
 ) : ViewModel() {
-
     private val _intent = MutableSharedFlow<LoginIntent>()
-
     private val _viewState = MutableStateFlow(LoginViewState())
     val viewState: StateFlow<LoginViewState> = _viewState
-
     private val _event = MutableSharedFlow<LoginEvent>()
     val event: SharedFlow<LoginEvent> = _event
-
-    // Login CoroutineExceptionHandler
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
-        _viewState.value =
-            _viewState.value.copy(
-                errorMessage = exception.message ?: "An unexpected error occurred",
-                isLoading = false
-            )
-    }
 
     init {
         processIntents()
@@ -73,8 +60,9 @@ class LoginViewModel @Inject constructor(
             _intent.emit(intent)
         }
     }
+
     private fun processIntents() {
-        viewModelScope.launch(coroutineExceptionHandler) {
+        viewModelScope.launch {
             _intent.collectLatest { intent ->
                 when (intent) {
                     is Login -> login()
@@ -94,14 +82,20 @@ class LoginViewModel @Inject constructor(
             passwordIconDescription = if (isPasswordVisible) R.string.show_password else R.string.hide_password
         )
     }
-    private fun login() {
-        viewModelScope.launch(coroutineExceptionHandler) {
+
+    private suspend fun login() {
+        try {
             _viewState.value = _viewState.value.copy(isLoading = true, errorMessage = null)
             val email = _viewState.value.email
             val password = _viewState.value.password
             val user = loginUseCase(email, password).mapToUserUiModel()
             _viewState.value = _viewState.value.copy(isLoading = false)
             _event.emit(LoginSuccess(user))
+        } catch (e: Exception) {
+            _viewState.value = _viewState.value.copy(
+                errorMessage = e.message ?: "Failed to login",
+                isLoading = false
+            )
         }
     }
 }

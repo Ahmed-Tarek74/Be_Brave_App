@@ -15,7 +15,7 @@ import com.compose.presentation.models.UserUiModel
 import com.compose.presentation.viewStates.HomeViewState
 import com.compose.presentation.viewStates.HomeViewState.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -41,10 +41,6 @@ class HomeViewModel @Inject constructor(
 
     private var homeUser: UserUiModel? = savedStateHandle["homeUser"]!!
 
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
-        _viewState.value = Failure(exception.message ?: "An unexpected error occurred")
-    }
-
     init {
         loadRecentChats()
         processIntents()
@@ -57,7 +53,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun processIntents() {
-        viewModelScope.launch(coroutineExceptionHandler) {
+        viewModelScope.launch(Dispatchers.IO) {
             _intent.collectLatest { intent ->
                 handleIntent(intent)
             }
@@ -81,21 +77,27 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadRecentChats() {
-        viewModelScope.launch(coroutineExceptionHandler) {
+        viewModelScope.launch(Dispatchers.IO) {
             _viewState.value = Loading
-            getRecentChatsUseCase(homeUser!!.userId).collectLatest { recentChats ->
-                _viewState.value = Success(recentChats.toUiModel(this@HomeViewModel::formatDate))
+            try {
+                getRecentChatsUseCase(homeUser!!.userId).collectLatest { recentChats ->
+                    _viewState.value =
+                        Success(recentChats.toUiModel(this@HomeViewModel::formatDate))
+                }
+            } catch (e: Exception) {
+                _viewState.value = Failure(e.message ?: "Failed to load recent chats")
             }
         }
     }
 
-    private fun logout() {
-        viewModelScope.launch(coroutineExceptionHandler) {
+    private suspend fun logout() {
+        try {
             logOutUseCase()
             _event.emit(HomeEvent.LoggedOut)
+        } catch (e: Exception) {
+            _viewState.value = Failure(e.message ?: "Failed to logout")
         }
     }
-
     private fun formatDate(date: Long): String {
         return dateFormatterUseCase(date)
     }

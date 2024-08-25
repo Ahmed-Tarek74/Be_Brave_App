@@ -1,6 +1,6 @@
 package com.compose.data.repo
 
-import com.compose.data.datasource.message.IMessageDataSource
+import com.compose.data.datasource.message.MessageDataSource
 import com.compose.domain.entities.Message
 import com.compose.domain.repos.MessagesRepository
 import junit.framework.TestCase.assertEquals
@@ -15,7 +15,7 @@ import org.mockito.Mockito.mock
 import org.mockito.kotlin.whenever
 
 class MessagesRepositoryImplTest {
-    private lateinit var  messagesDataSource: IMessageDataSource
+    private lateinit var  messagesDataSource: MessageDataSource
     private lateinit var messagesRepository : MessagesRepository
 
     @Before

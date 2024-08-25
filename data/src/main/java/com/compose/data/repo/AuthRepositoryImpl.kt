@@ -1,11 +1,11 @@
 package com.compose.data.repo
 
-import com.compose.data.datasource.auth.IAuthentication
+import com.compose.data.datasource.auth.AuthenticationDataSource
 import com.compose.domain.entities.User
 import com.compose.domain.repos.AuthRepository
 
 class AuthRepositoryImpl(
-    private val firebaseAuth: IAuthentication,
+    private val firebaseAuth: AuthenticationDataSource,
 ) : AuthRepository {
     override suspend fun login(email: String, password: String): String {
         return try {

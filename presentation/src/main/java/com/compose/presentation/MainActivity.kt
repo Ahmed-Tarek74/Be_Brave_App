@@ -47,7 +47,6 @@ class MainActivity : FragmentActivity() {
                 }
             }
         }
-
         lifecycleScope.launchWhenStarted {
             mainViewModel.notificationPermissionCommand.collect { command ->
                 when (command) {

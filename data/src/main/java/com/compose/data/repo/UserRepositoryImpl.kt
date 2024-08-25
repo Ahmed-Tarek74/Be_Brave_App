@@ -1,10 +1,10 @@
 package com.compose.data.repo
 
-import com.compose.data.datasource.user.IUserDataSource
+import com.compose.data.datasource.user.UserDataSource
 import com.compose.domain.entities.User
 import com.compose.domain.repos.UserRepository
 
-class UserRepositoryImpl(private val userDataSource: IUserDataSource) : UserRepository {
+class UserRepositoryImpl(private val userDataSource: UserDataSource) : UserRepository {
 
     override suspend fun searchUsers(searchQuery: String, homeUserId: String): List<User> {
         return try {

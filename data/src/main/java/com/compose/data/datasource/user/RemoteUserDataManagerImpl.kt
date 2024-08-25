@@ -14,7 +14,7 @@ import kotlin.coroutines.resumeWithException
 
 class RemoteUserDataManagerImpl @Inject constructor(
     private val database: FirebaseDatabase
-): IRemoteUserDataManager {
+): RemoteUserDataManager {
     override suspend fun getUserById(userId: String): User? {
         val dataSnapshot = database.reference.child("users").child(userId).get().await()
         return dataSnapshot.getValue(User::class.java)
