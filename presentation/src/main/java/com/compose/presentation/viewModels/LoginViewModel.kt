@@ -2,10 +2,10 @@ package com.compose.presentation.viewModels
 
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compose.domain.usecases.LoginUseCase
 import com.compose.presentation.R
+import com.compose.presentation.base.BaseViewModel
 import com.compose.presentation.events.LoginEvent
 import com.compose.presentation.events.LoginEvent.*
 import com.compose.presentation.intents.LoginIntent
@@ -13,7 +13,6 @@ import com.compose.presentation.intents.LoginIntent.*
 import com.compose.presentation.mappers.mapToUserUiModel
 import com.compose.presentation.viewStates.LoginViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -25,25 +24,20 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
-) : ViewModel() {
+) : BaseViewModel() {
     private val _intent = MutableSharedFlow<LoginIntent>()
     private val _viewState = MutableStateFlow(LoginViewState())
     val viewState: StateFlow<LoginViewState> = _viewState
     private val _event = MutableSharedFlow<LoginEvent>()
     val event: SharedFlow<LoginEvent> = _event
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
-        handleException(exception)
-    }
 
     init {
         processIntents()
     }
-
     private fun updateEmail(email: String) {
         _viewState.value = _viewState.value.copy(email = email)
         _viewState.value = _viewState.value.copy(isLoginEnabled = isFormValid())
     }
-
     private fun updatePassword(password: String) {
         _viewState.value = _viewState.value.copy(password = password)
         _viewState.value = _viewState.value.copy(isLoginEnabled = isFormValid())
@@ -102,12 +96,5 @@ class LoginViewModel @Inject constructor(
                 isLoading = false
             )
         }
-    }
-
-    private fun handleException(exception: Throwable) {
-        _viewState.value = _viewState.value.copy(
-            errorMessage = exception.message ?: "An unexpected error occurred. Please try again.",
-            isLoading = false
-        )
     }
 }

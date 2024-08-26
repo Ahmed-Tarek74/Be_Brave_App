@@ -2,18 +2,17 @@ package com.compose.presentation.viewModels
 
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compose.domain.entities.User
 import com.compose.domain.usecases.RegistrationUseCase
 import com.compose.presentation.R
+import com.compose.presentation.base.BaseViewModel
 import com.compose.presentation.events.RegistrationEvent
 import com.compose.presentation.events.RegistrationEvent.*
 import com.compose.presentation.intents.RegistrationIntent
 import com.compose.presentation.intents.RegistrationIntent.*
 import com.compose.presentation.viewStates.RegistrationViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RegistrationViewModel @Inject constructor(
     private val registrationUseCase: RegistrationUseCase
-) : ViewModel() {
+) : BaseViewModel() {
     private val _state = MutableStateFlow(RegistrationViewState())
     val state: StateFlow<RegistrationViewState> = _state
 
@@ -34,14 +33,9 @@ class RegistrationViewModel @Inject constructor(
 
     private val _event = MutableSharedFlow<RegistrationEvent>()
     val event: SharedFlow<RegistrationEvent> = _event
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
-        handleException(exception)
-    }
-
     init {
         processIntents()
     }
-
     private fun updateUsername(username: String) {
         _state.value = _state.value.copy(username = username)
         _state.value = _state.value.copy(isRegisterEnabled = isFormValid())
@@ -89,7 +83,7 @@ class RegistrationViewModel @Inject constructor(
                 when (intent) {
                     is Register -> register()
                     is NavigateToLogin -> {
-                        _event.emit(backToLogin)
+                        _event.emit(BackToLogin)
                     }
 
                     is ConfirmationPasswordChanged -> updateConfirmationPassword(intent.confirmationPassword)
@@ -121,7 +115,7 @@ class RegistrationViewModel @Inject constructor(
             _state.value = _state.value.copy(isLoading = true, errorMessage = null)
             registrationUseCase(user, _state.value.confirmationPassword)
             _state.value = _state.value.copy(isLoading = false)
-            _event.emit(RegisterSuccessfully)
+            _event.emit(RegistrationSuccess)
         } catch (e: Exception) {
             _state.value = _state.value.copy(
                 errorMessage = e.message ?: "Failed to register",
@@ -146,11 +140,5 @@ class RegistrationViewModel @Inject constructor(
                 confirmationPasswordIconDescription = if (isPasswordVisible) R.string.show_password else R.string.hide_password
             )
         }
-    }
-    private fun handleException(exception: Throwable) {
-        _state.value = _state.value.copy(
-            errorMessage = exception.message ?: "An unexpected error occurred. Please try again.",
-            isLoading = false
-        )
     }
 }

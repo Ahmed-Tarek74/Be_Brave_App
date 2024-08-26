@@ -1,7 +1,6 @@
 package com.compose.presentation.viewModels
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compose.domain.entities.Message
 import com.compose.domain.usecases.DateFormatterUseCase
@@ -9,6 +8,7 @@ import com.compose.domain.usecases.SendMessageUseCase
 import com.compose.domain.usecases.GetRecentMessagesUseCase
 import com.compose.domain.usecases.SendNotificationUseCase
 import com.compose.presentation.R
+import com.compose.presentation.base.BaseViewModel
 import com.compose.presentation.events.ChattingEvent
 import com.compose.presentation.intents.ChatIntent
 import com.compose.presentation.intents.ChatIntent.*
@@ -17,7 +17,6 @@ import com.compose.presentation.mappers.toUiModel
 import com.compose.presentation.models.UserUiModel
 import com.compose.presentation.viewStates.ChatViewState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +33,7 @@ class ChatViewModel @Inject constructor(
     private val dateFormatterUseCase: DateFormatterUseCase,
     private val sendNotificationUseCase: SendNotificationUseCase,
     savedStateHandle: SavedStateHandle
-) : ViewModel() {
+) : BaseViewModel() {
     private val _viewState = MutableStateFlow(ChatViewState())
     val viewState: StateFlow<ChatViewState> = _viewState
     private val _intent = MutableSharedFlow<ChatIntent>()
@@ -42,9 +41,6 @@ class ChatViewModel @Inject constructor(
     val event: SharedFlow<ChattingEvent> = _event
     private val awayUser: UserUiModel = savedStateHandle["awayUser"]!!
     private val homeUser: UserUiModel = savedStateHandle["homeUser"]!!
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
-        handleException(exception)
-    }
 
     init {
         fetchRecentMessages()
@@ -147,11 +143,5 @@ class ChatViewModel @Inject constructor(
                 )
             }
         }
-    }
-    private fun handleException(exception: Throwable) {
-        _viewState.value = _viewState.value.copy(
-            errorMsg = exception.message ?: "An unexpected error occurred. Please try again.",
-            isLoading = false
-        )
     }
 }

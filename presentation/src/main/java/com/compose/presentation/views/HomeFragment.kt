@@ -45,7 +45,7 @@ class HomeFragment : Fragment() {
                         awayUser = event.awayUser
                     )
                     is LoggedOut -> navigateToLoginScreen()
-                    is NavigateToSearchScreen -> navigateToSearchScreen(
+                    is NewChatClicked -> navigateToSearchScreen(
                         event.homeUser
                     )
                 }

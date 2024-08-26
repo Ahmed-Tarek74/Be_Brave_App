@@ -46,7 +46,7 @@ class RegistrationFragment : Fragment() {
         lifecycleScope.launch {
             registrationViewModel.event.collectLatest { event ->
                 when (event) {
-                    RegisterSuccessfully -> {
+                    RegistrationSuccess -> {
                         Toast.makeText(
                             requireContext(),
                             requireContext().getString(R.string.registerSuccessfully),
@@ -54,7 +54,7 @@ class RegistrationFragment : Fragment() {
                         ).show()
                         navigateToLogin()
                     }
-                    backToLogin -> navigateToLogin()
+                    BackToLogin -> navigateToLogin()
                 }
             }
         }

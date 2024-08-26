@@ -34,14 +34,12 @@ class MainViewModel @Inject constructor(
     fun checkNotificationPermission() {
         _notificationPermissionCommand.value = Request
     }
-
     fun onNotificationPermissionResult(isGranted: Boolean) {
         if (!isGranted) {
             _notificationPermissionCommand.value =
                 ShowDenied
         }
     }
-
     fun onShowPermissionRationale() {
         _notificationPermissionCommand.value = ShowRationale
     }
@@ -49,7 +47,6 @@ class MainViewModel @Inject constructor(
     init {
         observeLoginStatus()
     }
-
     private fun observeLoginStatus() {
         var cachedUser: User? = null
         var destination: Int

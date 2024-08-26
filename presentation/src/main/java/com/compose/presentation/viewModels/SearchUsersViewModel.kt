@@ -1,17 +1,16 @@
 package com.compose.presentation.viewModels
 
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.compose.presentation.intents.SearchUsersIntent
 import com.compose.presentation.intents.SearchUsersIntent.*
 import com.compose.presentation.viewStates.SearchUsersViewState
 import com.compose.domain.usecases.GetUsersUseCase
+import com.compose.presentation.base.BaseViewModel
 import com.compose.presentation.events.SearchUsersEvent
 import com.compose.presentation.mappers.toUiModel
 import com.compose.presentation.models.UserUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,22 +24,16 @@ import javax.inject.Inject
 class SearchUsersViewModel @Inject constructor(
     private val getUsersUseCase: GetUsersUseCase,
     savedStateHandle: SavedStateHandle
-) :
-    ViewModel() {
+) : BaseViewModel() {
     private val _viewState = MutableStateFlow(SearchUsersViewState())
     val viewState: StateFlow<SearchUsersViewState> = _viewState
     private val _event = MutableSharedFlow<SearchUsersEvent>()
     val event: SharedFlow<SearchUsersEvent> = _event
     private val _intent = MutableSharedFlow<SearchUsersIntent>()
     private var homeUser: UserUiModel = savedStateHandle["homeUser"]!!
-    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
-        handleException(exception)
-    }
-
     init {
         processIntents()
     }
-
     private fun onQueryChanged(query: String) {
         _viewState.value = _viewState.value.copy(searchQuery = query)
     }
@@ -90,12 +83,5 @@ class SearchUsersViewModel @Inject constructor(
                     isLoading = false
                 )
         }
-    }
-
-    private fun handleException(exception: Throwable) {
-        _viewState.value = _viewState.value.copy(
-            errorMsg = exception.message ?: "An unexpected error occurred. Please try again.",
-            isLoading = false
-        )
     }
 }
