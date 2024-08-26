@@ -30,29 +30,23 @@ class UserRepositoryImpl(private val userDataSource: UserDataSource) : UserRepos
         userDataSource.addUser(user)
     }
 
-    override suspend fun saveUserPreferences(user: User) {
-        try {
-            userDataSource.cacheUser(user)
-        } catch (e: Exception) {
-            throw Exception("Failed to cache user: ${e.localizedMessage}")
-        }
+    override suspend fun saveUserPreferences(user: User) = try {
+        userDataSource.cacheUser(user)
+    } catch (e: Exception) {
+        throw Exception("Failed to cache user: ${e.localizedMessage}")
     }
 
-    override suspend fun getCachedUser(): User {
-        try {
-            return userDataSource.getCachedUser() ?: throw Exception("Failed to retrieve cached user")
-        } catch (e: Exception) {
-            throw Exception("Failed to retrieve cached user", e)
-        }
+    override suspend fun getCachedUser(): User? = try {
+        userDataSource.getCachedUser()
+    } catch (e: Exception) {
+        throw Exception("Failed to retrieve cached user", e)
     }
 
-    override suspend fun clearUserPreferences() {
-        try {
-            // Perform the clear operation
-            userDataSource.clearUser()
-        } catch (e: Exception) {
-            throw Exception("Failed to clear user preferences: ${e.localizedMessage}", e)
-        }
+    override suspend fun clearUserPreferences() = try {
+        // Perform the clear operation
+        userDataSource.clearUser()
+    } catch (e: Exception) {
+        throw Exception("Failed to clear user preferences: ${e.localizedMessage}", e)
     }
 }
 
