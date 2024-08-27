@@ -34,10 +34,12 @@ class LoginViewModel @Inject constructor(
     init {
         processIntents()
     }
+
     private fun updateEmail(email: String) {
         _viewState.value = _viewState.value.copy(email = email)
         _viewState.value = _viewState.value.copy(isLoginEnabled = isFormValid())
     }
+
     private fun updatePassword(password: String) {
         _viewState.value = _viewState.value.copy(password = password)
         _viewState.value = _viewState.value.copy(isLoginEnabled = isFormValid())
@@ -54,10 +56,11 @@ class LoginViewModel @Inject constructor(
     }
 
     fun setIntent(intent: LoginIntent) {
-        viewModelScope.launch(coroutineExceptionHandler) {
+        viewModelScope.launch {
             _intent.emit(intent)
         }
     }
+
     private fun processIntents() {
         viewModelScope.launch(coroutineExceptionHandler)
         {

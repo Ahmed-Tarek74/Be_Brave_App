@@ -38,13 +38,14 @@ class HomeViewModel @Inject constructor(
     val viewState: StateFlow<HomeViewState> = _viewState
     val event: SharedFlow<HomeEvent> = _event
     private var homeUser: UserUiModel? = savedStateHandle["homeUser"]!!
+
     init {
         loadRecentChats()
         processIntents()
     }
 
     fun setIntent(intent: HomeIntent) {
-        viewModelScope.launch(coroutineExceptionHandler) {
+        viewModelScope.launch {
             _intent.emit(intent)
         }
     }
@@ -65,7 +66,6 @@ class HomeViewModel @Inject constructor(
                     awayUser = intent.selectedUser
                 )
             )
-
             is StartNewChat -> _event.emit(NewChatClicked(homeUser!!))
             is HomeIntent.LoggedOut -> {
                 logout()
@@ -95,6 +95,7 @@ class HomeViewModel @Inject constructor(
             _viewState.value = Failure(e.message ?: "Failed to logout")
         }
     }
+
     private fun formatDate(date: Long): String {
         return dateFormatterUseCase(date)
     }

@@ -35,6 +35,13 @@
     <string name="confirm_password">Confirm Password</string>
     <string name="register">REGISTER</string>
     <string name="registerSuccessfully">Register Successfully</string>
+    <string name="permission_denied">Permission Denied</string>
+    <string name="permission_denied_message">Notifications are disabled for this app. You can enable them in the app settings.</string>
+    <string name="notification_permission_required">Notification Permission Required</string>
+    <string name="notification_permission_required_msg">This app requires notification permission to send you messages from other users. Please grant the permission.</string>
+    <string name="accept">OK</string>
+    <string name="reject">No thanks</string>
+    <string name="saved_user_failure_msg">Failed to get saved user information.</string>
 
 
 </resources>

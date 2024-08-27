@@ -123,7 +123,7 @@ class ChatViewModel @Inject constructor(
             isLoading = true,
             errorMsg = null
         )
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
             try {
                 getRecentMessagesUseCase(homeUser.userId, awayUser.userId)
                     .collectLatest { messagesList ->

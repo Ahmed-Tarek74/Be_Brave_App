@@ -1,14 +1,13 @@
 package com.compose.presentation.viewModels
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.compose.domain.entities.User
 import com.compose.domain.usecases.GetCachedUserUseCase
-import com.compose.presentation.R
-import com.compose.presentation.events.StartDestinationEvent
-import com.compose.presentation.events.StartDestinationEvent.*
+import com.compose.presentation.base.BaseViewModel
+import com.compose.presentation.events.UserCacheEvent
+import com.compose.presentation.events.UserCacheEvent.*
 import com.compose.presentation.intents.NotificationPermissionCommand
 import com.compose.presentation.intents.NotificationPermissionCommand.*
+import com.compose.presentation.mappers.mapToUserUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,10 +22,10 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getCachedUserUseCase: GetCachedUserUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
-    private val _navigationEvent = MutableSharedFlow<StartDestinationEvent>()
-    val navigationCommand = _navigationEvent.asSharedFlow()
+    private val _userLoadedEvent = MutableSharedFlow<UserCacheEvent>()
+    val userLoadedEvent = _userLoadedEvent.asSharedFlow()
 
     private val _notificationPermissionCommand =
         MutableStateFlow<NotificationPermissionCommand?>(null)
@@ -34,12 +33,14 @@ class MainViewModel @Inject constructor(
     fun checkNotificationPermission() {
         _notificationPermissionCommand.value = Request
     }
+
     fun onNotificationPermissionResult(isGranted: Boolean) {
         if (!isGranted) {
             _notificationPermissionCommand.value =
                 ShowDenied
         }
     }
+
     fun onShowPermissionRationale() {
         _notificationPermissionCommand.value = ShowRationale
     }
@@ -48,16 +49,29 @@ class MainViewModel @Inject constructor(
         observeLoginStatus()
     }
     private fun observeLoginStatus() {
-        var cachedUser: User? = null
-        var destination: Int
-        viewModelScope.launch {
+        viewModelScope.launch(coroutineExceptionHandler) {
             try {
-                cachedUser = withContext(Dispatchers.IO) { getCachedUserUseCase() }
-                destination = R.id.homeFragment
+                // Retrieve the cached user asynchronously on the IO dispatcher
+                val loggedInUser = withContext(Dispatchers.IO) { getCachedUserUseCase() }
+
+                // Emit event based on whether the user was found or not
+                val userLoadedEvent = if (loggedInUser != null) {
+                    UserLoaded(
+                        isUserLoggedIn = true,
+                        user = loggedInUser.mapToUserUiModel()
+                    )
+                } else {
+                    UserLoaded(isUserLoggedIn = false)
+                }
+                _userLoadedEvent.emit(userLoadedEvent)
             } catch (e: Exception) {
-                destination = R.id.loginFragment
+                // Emit an error event with a default message if errorMsg is null
+                _userLoadedEvent.emit(
+                    UserLoadFailed(
+                        errorMsg = e.message ?: "Failed to get saved user"
+                    )
+                )
             }
-            _navigationEvent.emit(To(destination, cachedUser))
         }
     }
 }
