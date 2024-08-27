@@ -8,6 +8,7 @@ import java.util.*
 class DateFormatterUseCaseTest {
 
     private val dateFormatterUseCase = DateFormatterUseCase()
+
     @Test
     fun `invoke should format timestamp correctly`() {
         val timestamp = 1625086800000L // Example timestamp

@@ -1,5 +1,6 @@
 package com.compose.domain.usecases
 
+import com.compose.domain.base.BaseUseCaseTest
 import com.compose.domain.entities.User
 import com.compose.domain.repos.UserRepository
 import junit.framework.TestCase.assertEquals
@@ -12,7 +13,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
-class GetUsersUseCaseTest {
+class GetUsersUseCaseTest :BaseUseCaseTest(){
 
     @Mock
     private lateinit var userRepository: UserRepository
@@ -26,7 +27,7 @@ class GetUsersUseCaseTest {
     }
 
     @Test
-    fun `searchUsers should return list of users when called`() = runTest {
+    fun `searchUsers should return list of users when called`() = runTest(testDispatcher) {
         // Arrange
         val query = "Tarek"
         val userId = "userId#123"
@@ -63,7 +64,7 @@ class GetUsersUseCaseTest {
     }
 
     @Test(expected = Exception::class)
-    fun `searchUsers should throw an exception when repository throws an exception`() = runTest {
+    fun `searchUsers should throw an exception when repository throws an exception`() = runTest(testDispatcher) {
         // Arrange
         val query = "john"
         val userId = "user123"
