@@ -1,5 +1,6 @@
 package com.compose.domain.usecases
 
+import com.compose.domain.base.BaseUseCaseTest
 import com.compose.domain.entities.User
 import com.compose.domain.repos.AuthRepository
 import com.compose.domain.repos.UserRepository
@@ -17,7 +18,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
-class RegistrationUseCaseTest {
+class RegistrationUseCaseTest : BaseUseCaseTest() {
     @Mock
     private lateinit var authRepository: AuthRepository
 
@@ -33,23 +34,24 @@ class RegistrationUseCaseTest {
     }
 
     @Test
-    fun `invoke should register user and add user to repository when passwords match`() = runTest {
-        // Arrange
-        val user = User(email = "test@example.com", password = "password123")
-        val confirmationPassword = "password123"
-        `when`(authRepository.register(user)).thenReturn(user)
+    fun `invoke should register user and add user to repository when passwords match`() =
+        runTest(testDispatcher) {
+            // Arrange
+            val user = User(email = "test@example.com", password = "password123")
+            val confirmationPassword = "password123"
+            `when`(authRepository.register(user)).thenReturn(user)
 
-        // Act
-        val registeredUser = registrationUseCase(user, confirmationPassword)
+            // Act
+            val registeredUser = registrationUseCase(user, confirmationPassword)
 
-        // Assert
-        assertEquals(user, registeredUser)
-        verify(authRepository, times(1)).register(user)
-        verify(userRepository, times(1)).addUser(user)
-    }
+            // Assert
+            assertEquals(user, registeredUser)
+            verify(authRepository, times(1)).register(user)
+            verify(userRepository, times(1)).addUser(user)
+        }
 
     @Test(expected = Exception::class)
-    fun `invoke should throw exception when passwords do not match`() = runTest {
+    fun `invoke should throw exception when passwords do not match`() = runTest(testDispatcher) {
         // Arrange
         val user = User(email = "test@example.com", password = "password123")
         val confirmationPassword = "differentPassword"
@@ -61,23 +63,24 @@ class RegistrationUseCaseTest {
             }
         }
         // Assert (Exception is expected)
-        val expectedExceptionMsg="Passwords do not match"
+        val expectedExceptionMsg = "Passwords do not match"
         assertEquals(expectedExceptionMsg, actualException.message)
         verify(authRepository, never()).register(user)
         verify(userRepository, never()).addUser(any())
     }
 
     @Test(expected = Exception::class)
-    fun `invoke should throw exception when repository throws exception`() = runTest {
-        // Arrange
-        val user = User(email = "test@example.com", password = "password123")
-        val confirmationPassword = "password123"
-        `when`(authRepository.register(user)).thenThrow(Exception("Registration failed"))
-        // Act
-        registrationUseCase(user, confirmationPassword)
+    fun `invoke should throw exception when repository throws exception`() =
+        runTest(testDispatcher) {
+            // Arrange
+            val user = User(email = "test@example.com", password = "password123")
+            val confirmationPassword = "password123"
+            `when`(authRepository.register(user)).thenThrow(Exception("Registration failed"))
+            // Act
+            registrationUseCase(user, confirmationPassword)
 
-        // Assert (Exception is expected)
-        verify(authRepository, times(1)).register(user)
-        verify(userRepository, never()).addUser(any())
-    }
+            // Assert (Exception is expected)
+            verify(authRepository, times(1)).register(user)
+            verify(userRepository, never()).addUser(any())
+        }
 }

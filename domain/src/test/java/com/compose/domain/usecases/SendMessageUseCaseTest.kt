@@ -1,5 +1,6 @@
 package com.compose.domain.usecases
 
+import com.compose.domain.base.BaseUseCaseTest
 import com.compose.domain.entities.Message
 import com.compose.domain.entities.User
 import com.compose.domain.repos.MessagesRepository
@@ -16,7 +17,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
-class SendMessageUseCaseTest {
+class SendMessageUseCaseTest :BaseUseCaseTest(){
 
     @Mock
     private lateinit var messagesRepository: MessagesRepository
@@ -33,7 +34,7 @@ class SendMessageUseCaseTest {
     }
 
     @Test
-    fun `invoke should send message and update recent chats`() = runTest {
+    fun `invoke should send message and update recent chats`() = runTest(testDispatcher) {
         // Arrange
         val message = Message(
             senderId = "userId#123",
@@ -61,7 +62,7 @@ class SendMessageUseCaseTest {
     }
 
     @Test(expected = Exception::class)
-    fun `invoke should throw exception when sending message fails`() = runTest {
+    fun `invoke should throw exception when sending message fails`() = runTest(testDispatcher) {
         // Arrange
         val message = Message(senderId = "userId#123", receiverId = "userId#456", message = "Hello")
         val homeUser = User(userId = "userId#123", username = "Mo Tareq")

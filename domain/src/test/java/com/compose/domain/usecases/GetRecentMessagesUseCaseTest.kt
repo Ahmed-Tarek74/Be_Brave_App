@@ -1,5 +1,6 @@
 package com.compose.domain.usecases
 
+import com.compose.domain.base.BaseUseCaseTest
 import com.compose.domain.entities.Message
 import com.compose.domain.repos.MessagesRepository
 import junit.framework.TestCase.assertEquals
@@ -14,7 +15,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
-class GetRecentMessagesUseCaseTest {
+class GetRecentMessagesUseCaseTest :BaseUseCaseTest() {
     @Mock
     private lateinit var messagesRepository: MessagesRepository
 
@@ -27,7 +28,7 @@ class GetRecentMessagesUseCaseTest {
     }
 
     @Test
-    fun `invoke should return chat messages when called`() = runTest {
+    fun `invoke should return chat messages when called`() = runTest(testDispatcher) {
         // Arrange
         val homeUserId = "userId#123"
         val awayUserId = "userId#456"
@@ -60,7 +61,7 @@ class GetRecentMessagesUseCaseTest {
     }
 
     @Test(expected = Exception::class)
-    fun `invoke should throw exception when repository throws exception`() = runTest {
+    fun `invoke should throw exception when repository throws exception`() = runTest(testDispatcher) {
         // Arrange
         val homeUserId = "userId#123"
         val awayUserId = "userId#456"

@@ -1,9 +1,9 @@
 package com.compose.domain.usecases
 
+import com.compose.domain.base.BaseUseCaseTest
 import com.compose.domain.entities.User
 import com.compose.domain.repos.UserRepository
 import junit.framework.TestCase.assertEquals
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -13,14 +13,12 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
-class GetCachedUserUseCaseTest {
+class GetCachedUserUseCaseTest : BaseUseCaseTest() {
 
     @Mock
     private lateinit var userRepository: UserRepository
 
     private lateinit var getCachedUserUseCase: GetCachedUserUseCase
-
-    private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setUp() {

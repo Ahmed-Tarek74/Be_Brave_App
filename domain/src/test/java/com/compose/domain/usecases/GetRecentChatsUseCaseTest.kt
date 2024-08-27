@@ -1,12 +1,12 @@
 package com.compose.domain.usecases
 
+import com.compose.domain.base.BaseUseCaseTest
 import com.compose.domain.entities.RecentChat
 import com.compose.domain.entities.User
 import com.compose.domain.repos.RecentChatsRepository
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -16,14 +16,12 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
 
-class GetRecentChatsUseCaseTest {
+class GetRecentChatsUseCaseTest :BaseUseCaseTest() {
 
     @Mock
     private lateinit var recentChatsRepository: RecentChatsRepository
 
     private lateinit var getRecentChatsUseCase: GetRecentChatsUseCase
-
-    private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setUp() {
