@@ -26,6 +26,7 @@ class UserRepositoryImplTest {
         userDataSourceImpl = mock()
         userRepository = UserRepositoryImpl(userDataSourceImpl)
     }
+
     @Test
     fun `searchUsers should return filtered users when successful`() = runTest {
         val searchQuery = "User"
@@ -37,7 +38,7 @@ class UserRepositoryImplTest {
             listOf(user1, user2, user3)
         )
         val actual = userRepository.searchUsers(searchQuery, homeUserId)
-        val expected=listOf(user2, user3)
+        val expected = listOf(user2, user3)
         assertEquals(expected, actual)
     }
 
@@ -75,9 +76,10 @@ class UserRepositoryImplTest {
         val actualException = assertThrows(Exception::class.java) {
             runBlocking { userRepository.getUserById(userId) }
         }
-        val expectedExceptionMsg="Failed to retrieve user with ID: $userId"
-        assertEquals(expectedExceptionMsg,actualException.message)
+        val expectedExceptionMsg = "Failed to retrieve user with ID: $userId"
+        assertEquals(expectedExceptionMsg, actualException.message)
     }
+
     @Test
     fun `getUserById should throw exception when data source fails`() = runTest {
         val userId = "user123"
@@ -87,9 +89,10 @@ class UserRepositoryImplTest {
         val actualException = assertThrows(Exception::class.java) {
             runBlocking { userRepository.getUserById(userId) }
         }
-        val expectedExceptionMsg="Failed to retrieve user with ID: $userId"
+        val expectedExceptionMsg = "Failed to retrieve user with ID: $userId"
         assertEquals(expectedExceptionMsg, actualException.message)
     }
+
     @Test
     fun `saveUserPreferences should save user successfully`() = runTest {
         val user = User("userId", "username", "email@example.com")
@@ -99,6 +102,7 @@ class UserRepositoryImplTest {
 
         verify(userDataSourceImpl, times(1)).cacheUser(user)
     }
+
     @Test
     fun `saveUserPreferences should throw exception when caching fails`() = runTest {
         val user = User("userId", "username", "email@example.com")
@@ -111,7 +115,7 @@ class UserRepositoryImplTest {
                 userRepository.saveUserPreferences(user)
             }
         }
-        val existsExceptionMsg="Failed to cache user: $exceptionMessage"
+        val existsExceptionMsg = "Failed to cache user: $exceptionMessage"
         assertEquals(existsExceptionMsg, actualException.message)
     }
 
@@ -121,30 +125,28 @@ class UserRepositoryImplTest {
         `when`(userDataSourceImpl.getCachedUser()).thenReturn(user)
         val result = userRepository.getCachedUser()
         assertEquals(user, result)
-        verify(userDataSourceImpl,times(1)).getCachedUser()
+        verify(userDataSourceImpl, times(1)).getCachedUser()
     }
 
     @Test
-    fun `getCachedUser should throw exception when no user is cached`() = runTest {
+    fun `getCachedUser should return null when no user is cached`() = runTest {
         `when`(userDataSourceImpl.getCachedUser()).thenReturn(null)
-        val actualException = assertThrows(Exception::class.java) {
-            runBlocking {
-                userRepository.getCachedUser()
-            }
-        }
-        assertEquals("Failed to get logged in user", actualException.message)
+        val actual = userRepository.getCachedUser()
+        assertEquals(null, actual)
     }
+
     @Test
     fun `getCachedUser should throw exception when retrieval fails`() = runTest {
         val exceptionMessage = "Failed to retrieve cached user"
         `when`(userDataSourceImpl.getCachedUser()).thenThrow(RuntimeException(exceptionMessage))
-        val actualException =assertThrows(Exception::class.java) {
+        val actualException = assertThrows(Exception::class.java) {
             runBlocking {
                 userRepository.getCachedUser()
             }
         }
         assertEquals(exceptionMessage, actualException.message)
     }
+
     @Test
     fun `clearUserPreferences should clear user preferences successfully`() = runTest {
         `when`(userDataSourceImpl.clearUser()).thenReturn(Unit)
@@ -164,7 +166,7 @@ class UserRepositoryImplTest {
                 userRepository.clearUserPreferences()
             }
         }
-        val expectedExceptionMsg="Failed to clear user preferences: $exceptionMessage"
+        val expectedExceptionMsg = "Failed to clear user preferences: $exceptionMessage"
 
         assertEquals(expectedExceptionMsg, actualException.message)
     }

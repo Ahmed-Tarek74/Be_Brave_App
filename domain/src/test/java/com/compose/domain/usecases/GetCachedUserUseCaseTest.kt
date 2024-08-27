@@ -40,6 +40,19 @@ class GetCachedUserUseCaseTest {
         assertEquals(expectedUser, actualUser)
         verify(userRepository, times(1)).getCachedUser()
     }
+    @Test
+    fun `invoke should return null when no user is cached`() = runTest(testDispatcher) {
+        // Arrange
+        val expected = null
+        `when`(userRepository.getCachedUser()).thenReturn(null)
+
+        // Act
+        val actualUser = getCachedUserUseCase()
+
+        // Assert
+        assertEquals(expected, actualUser)
+        verify(userRepository, times(1)).getCachedUser()
+    }
 
     @Test(expected = Exception::class)
     fun `invoke should throw exception when repository fails`() = runTest(testDispatcher) {
