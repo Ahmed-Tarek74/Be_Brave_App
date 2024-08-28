@@ -40,8 +40,8 @@ import com.compose.domain.repos.UserRepository
 import com.compose.domain.repos.NotificationRepository
 import com.compose.domain.repos.RecentChatsRepository
 import com.compose.domain.utils.EventLogger
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.database.FirebaseDatabase
 import dagger.Module
 import dagger.Provides
@@ -67,14 +67,14 @@ object RepoModule {
 
     @Provides
     @Singleton
-    fun provideFirebaseCrashlytics(): FirebaseCrashlytics {
-        return FirebaseCrashlytics.getInstance()
+    fun provideFirebaseAnalytics(@ApplicationContext context: Context): FirebaseAnalytics {
+        return FirebaseAnalytics.getInstance(context)
     }
 
     @Provides
     @Singleton
-    fun provideEventLogger(crashlytics: FirebaseCrashlytics): EventLogger =
-        FirebaseEventLogger(crashlytics)
+    fun provideEventLogger(firebaseAnalytics: FirebaseAnalytics): EventLogger =
+        FirebaseEventLogger(firebaseAnalytics)
 
     @Provides
     @Singleton
@@ -123,8 +123,9 @@ object RepoModule {
     @Singleton
     fun provideUserDataSource(
         remoteUserDataManager: RemoteUserDataManager,
-        userPreferencesManager: UserPreferencesManager
-    ): UserDataSource = UserDataSourceImpl(remoteUserDataManager, userPreferencesManager)
+        userPreferencesManager: UserPreferencesManager,
+        eventLogger: EventLogger
+    ): UserDataSource = UserDataSourceImpl(remoteUserDataManager, userPreferencesManager,eventLogger)
 
     @Provides
     @Singleton
@@ -173,8 +174,8 @@ object RepoModule {
 
     @Provides
     @Singleton
-    fun provideRecentChatsDataSource(firebaseDatabase: FirebaseDatabase):
-            RecentChatDataSource = RecentChatDataSourceImpl(firebaseDatabase)
+    fun provideRecentChatsDataSource(firebaseDatabase: FirebaseDatabase, eventLogger: EventLogger):
+            RecentChatDataSource = RecentChatDataSourceImpl(firebaseDatabase, eventLogger)
 
     @Provides
     @Singleton

@@ -10,6 +10,7 @@ class MessagesRepositoryImpl(
 ) : MessagesRepository {
 
     override suspend fun sendMessage(message: Message, chatId: String): Message {
+        messagesDataSource.logEvent("attempt_to_send_message", mapOf("chatID" to chatId))
         return try {
             messagesDataSource.sendMessage(message, chatId)
         } catch (e: Exception) {
@@ -18,6 +19,7 @@ class MessagesRepositoryImpl(
     }
 
     override fun getChatMessages(chatId: String): Flow<List<Message>> {
+        messagesDataSource.logEvent("attempt_to_fetch_recent_messages", mapOf("chatID" to chatId))
         return try {
             messagesDataSource.getChatMessages(chatId)
         } catch (e: Exception) {

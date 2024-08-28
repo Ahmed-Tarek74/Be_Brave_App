@@ -9,6 +9,7 @@ class DeviceTokenRepositoryImpl(
 ) : DeviceTokenRepository {
 
     override suspend fun setDeviceTokenToUser(userId: String) {
+        deviceTokenDataSource.logEvent("attempt_to_save_device_token", mapOf("userId" to userId))
         try {
             deviceTokenDataSource.setDeviceTokenToUser(userId)
         } catch (e: Exception) {
@@ -16,11 +17,11 @@ class DeviceTokenRepositoryImpl(
         }
     }
     override suspend fun getDeviceToken(userId: String): String {
+        deviceTokenDataSource.logEvent("attempt_to_get_device_token", mapOf("userId" to userId))
         return try {
             deviceTokenDataSource.getDeviceToken(userId)
         } catch (e: Exception) {
             throw DeviceTokenException("Failed to retrieve device token for user: $userId", e)
         }
     }
-
 }

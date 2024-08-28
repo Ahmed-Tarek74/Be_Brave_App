@@ -10,14 +10,17 @@ class RecentChatsRepositoryImpl(
     private val recentChatsDataSource: RecentChatDataSource
 ) : RecentChatsRepository {
 
-    override fun getRecentChats(userId: String): Flow<List<RecentChat>>{
+    override fun getRecentChats(userId: String): Flow<List<RecentChat>> {
+        recentChatsDataSource.logEvent("attempt_to_load_recent_chats", mapOf("userId" to userId))
         return try {
             recentChatsDataSource.fetchRecentChats(userId)
         } catch (e: Exception) {
             throw Exception("Failed to fetch recent chats for user: $userId", e)
         }
     }
+
     override suspend fun updateRecentChats(homeUserId: String, awayUser: User, message: String) {
+        recentChatsDataSource.logEvent("attempt_to_update_recent_chats",mapOf("userId" to homeUserId))
         try {
             recentChatsDataSource.updateRecentChat(homeUserId, awayUser, message)
         } catch (e: Exception) {

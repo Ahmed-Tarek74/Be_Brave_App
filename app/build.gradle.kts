@@ -80,17 +80,16 @@ dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
-    implementation(libs.firebase.analytics)
     implementation(libs.google.firebase.database)
     implementation(libs.firebase.messaging.ktx)
     implementation(libs.firebase.messaging)
+    //the Crashlytics and Analytics libraries
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
+
 
     //Coil
     implementation(libs.coil.compose)
-
-    //the Crashlytics and Analytics libraries
-    implementation(libs.firebase.crashlytics)
-    implementation(libs.google.firebase.analytics)
     // Retrofit
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
