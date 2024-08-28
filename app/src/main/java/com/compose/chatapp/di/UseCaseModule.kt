@@ -19,10 +19,10 @@ import com.compose.domain.usecases.SendNotificationUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import dagger.hilt.android.components.ViewModelComponent
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object UseCaseModule {
     @Provides
     fun provideLoginUseCase(
@@ -32,12 +32,13 @@ object UseCaseModule {
     ): LoginUseCase = LoginUseCase(authRepository, deviceTokenRepository, userRepository)
 
     @Provides
-    fun provideRegistrationUseCase(authRepository: AuthRepository,userRepository: UserRepository):
-            RegistrationUseCase = RegistrationUseCase(authRepository,userRepository)
+    fun provideRegistrationUseCase(authRepository: AuthRepository, userRepository: UserRepository):
+            RegistrationUseCase = RegistrationUseCase(authRepository, userRepository)
 
     @Provides
     fun provideDateFormatterUseCase():
             DateFormatterUseCase = DateFormatterUseCase()
+
     @Provides
     fun provideGetUsersUseCase(userRepository: UserRepository):
             GetUsersUseCase = GetUsersUseCase(userRepository)

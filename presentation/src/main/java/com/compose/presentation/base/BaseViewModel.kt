@@ -8,8 +8,9 @@ open class BaseViewModel :ViewModel() {
     protected val coroutineExceptionHandler = CoroutineExceptionHandler { _, exception ->
         handleException(exception)
     }
+
     // Abstract method to handle exceptions
-    private  fun handleException(exception: Throwable) {
+    private fun handleException(exception: Throwable) {
         // Log the exception for debugging purposes
         Log.e("BaseViewModel", "An error occurred", exception)
     }

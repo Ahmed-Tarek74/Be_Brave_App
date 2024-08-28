@@ -10,6 +10,7 @@ class NotificationRepositoryImpl @Inject constructor(
 ) : NotificationRepository {
 
     override suspend fun sendNotification(notification: NotificationMessage) {
+        notificationDataSource.logEvent("attempt_to_push_notification")
         try {
             notificationDataSource.sendNotification(notification)
         } catch (e: Exception) {

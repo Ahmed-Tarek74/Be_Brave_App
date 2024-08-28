@@ -10,7 +10,10 @@ class NotificationDataSourceImpl @Inject constructor(
     private val eventLogger: EventLogger
 ) : NotificationDataSource {
     override suspend fun sendNotification(notification: NotificationMessage) {
-        eventLogger.logEvent("AttemptToPushNotification")
         fcmApi.sendNotification(notification)
+    }
+
+    override fun logEvent(eventName: String, params: Map<String, String>) {
+        eventLogger.logEvent(eventName, params)
     }
 }

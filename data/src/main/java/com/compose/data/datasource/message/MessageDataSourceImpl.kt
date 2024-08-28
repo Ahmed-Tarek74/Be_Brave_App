@@ -20,7 +20,6 @@ class MessageDataSourceImpl(
     override suspend fun sendMessage(message: Message, chatId: String): Message {
         val messageWithTimestamp = message.copy(timestamp = System.currentTimeMillis())
         return try {
-            eventLogger.logEvent("AttemptToSendMessage", mapOf("chatID" to chatId))
             val messagesRef = database.reference.child("messages").child(chatId)
             messagesRef.push().setValue(messageWithTimestamp).await()
             messageWithTimestamp
@@ -33,16 +32,20 @@ class MessageDataSourceImpl(
         val messagesRef = database.reference.child("messages").child(chatId)
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                eventLogger.logEvent("AttemptToFetchRecentMessages", mapOf("chatID" to chatId))
                 val messages = snapshot.children.mapNotNull { it.getValue(Message::class.java) }
                 trySend(messages)
             }
+
             override fun onCancelled(error: DatabaseError) {
                 close(Exception("Failed to fetch messages for chat: $chatId", error.toException()))
             }
         }
         messagesRef.addValueEventListener(listener)
         awaitClose { messagesRef.removeEventListener(listener) }
+    }
+
+    override fun logEvent(eventName: String, params: Map<String, String>) {
+        eventLogger.logEvent(eventName, params)
     }
 }
 

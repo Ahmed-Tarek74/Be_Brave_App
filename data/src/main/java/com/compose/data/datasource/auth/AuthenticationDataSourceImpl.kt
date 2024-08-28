@@ -9,21 +9,22 @@ class AuthenticationDataSourceImpl(
     private val eventLogger: EventLogger
 ) : AuthenticationDataSource {
     override suspend fun login(email: String, password: String): String {
-        eventLogger.logEvent("AttemptToLogin")
         val authResult = firebaseAuth.signInWithEmailAndPassword(email, password).await()
         return authResult.user?.uid
             ?: throw Exception("Failed to get user ID from authentication result.")
     }
 
     override suspend fun register(email: String, password: String): String {
-        eventLogger.logEvent("AttemptToRegister")
         val authResult = firebaseAuth.createUserWithEmailAndPassword(email, password).await()
         return authResult.user?.uid
             ?: throw Exception("Failed to get user ID from authentication result.")
     }
 
     override fun logout() {
-        eventLogger.logEvent("AttemptToLogin")
         firebaseAuth.signOut()
+    }
+
+    override fun logEvent(eventName: String, params: Map<String, String>) {
+        eventLogger.logEvent(eventName, params)
     }
 }

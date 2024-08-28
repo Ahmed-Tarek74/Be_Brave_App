@@ -10,26 +10,24 @@ class DeviceTokenDataSourceImpl(
     private val tokenService: ITokenService,
     private val eventLogger: EventLogger
 ) : DeviceTokenDataSource {
-
     override suspend fun setDeviceTokenToUser(userId: String) {
         try {
-            eventLogger.logEvent("AttemptToGetDeviceToken", mapOf("userId" to userId))
             val token =tokenService.getToken()
-            eventLogger.logEvent("AttemptToSaveDeviceToken", mapOf("userId" to userId))
             database.reference.child("user_tokens").child(userId).setValue(token).await()
         } catch (e: Exception) {
             throw DeviceTokenException("Failed to save device token for user: $userId", e)
         }
     }
-
     override suspend fun getDeviceToken(userId: String): String {
         return try {
-            eventLogger.logEvent("AttemptToRetrieveDeviceToken", mapOf("userId" to userId))
             val tokenSnapshot = database.reference.child("user_tokens").child(userId).get().await()
             tokenSnapshot.getValue(String::class.java)
                 ?: throw DeviceTokenException("Device token is null for user: $userId")
         } catch (e: Exception) {
             throw DeviceTokenException("Failed to retrieve device token for user: $userId", e)
         }
+    }
+    override fun logEvent(eventName: String, params: Map<String, String>) {
+        eventLogger.logEvent(eventName,params)
     }
 }

@@ -5,11 +5,12 @@ import com.compose.domain.entities.User
 import com.compose.domain.repos.AuthRepository
 
 class AuthRepositoryImpl(
-    private val firebaseAuth: AuthenticationDataSource,
+    private val authDataSource: AuthenticationDataSource,
 ) : AuthRepository {
     override suspend fun login(email: String, password: String): String {
+        authDataSource.logEvent("attempt_to_login")
         return try {
-            val userId =firebaseAuth.login(email, password)
+            val userId = authDataSource.login(email, password)
             userId
         } catch (e: Exception) {
             throw Exception("Login failed: ${e.message}", e)
@@ -17,8 +18,9 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun register(user: User): User {
+        authDataSource.logEvent("Attempt_to_sign_up")
         return try {
-            val userId = firebaseAuth.register(user.email, user.password)
+            val userId = authDataSource.register(user.email, user.password)
             val registeredUser = user.copy(userId = userId)
             registeredUser
         } catch (e: Exception) {
@@ -27,8 +29,9 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun logOut() {
+        authDataSource.logEvent("attempt_to_logout")
         try {
-            firebaseAuth.logout()
+            authDataSource.logout()
         } catch (e: Exception) {
             throw Exception("Logout failed: ${e.message}", e)
         }

@@ -2,6 +2,7 @@ package com.compose.data.datasource.recentChat
 
 import com.compose.domain.entities.RecentChat
 import com.compose.domain.entities.User
+import com.compose.domain.utils.EventLogger
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -11,7 +12,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
-class RecentChatDataSourceImpl(private val database: FirebaseDatabase) :
+class RecentChatDataSourceImpl(
+    private val database: FirebaseDatabase,
+    private val eventLogger: EventLogger
+) :
     RecentChatDataSource {
 
     override fun fetchRecentChats(userId: String): Flow<List<RecentChat>> = callbackFlow {
@@ -52,5 +56,9 @@ class RecentChatDataSourceImpl(private val database: FirebaseDatabase) :
         } catch (e: Exception) {
             throw Exception("Failed to update recent chats: ${e.localizedMessage}", e)
         }
+    }
+
+    override fun logEvent(eventName: String, params: Map<String, String>) {
+        eventLogger.logEvent(eventName, params)
     }
 }

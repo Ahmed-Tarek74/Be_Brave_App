@@ -7,4 +7,6 @@ import kotlinx.coroutines.flow.Flow
 interface RecentChatDataSource {
     fun fetchRecentChats(userId: String): Flow<List<RecentChat>>
     suspend fun updateRecentChat(homeUserId: String, awayUser: User, message: String)
+    fun logEvent(eventName: String, params: Map<String, String> = emptyMap())
+
 }
