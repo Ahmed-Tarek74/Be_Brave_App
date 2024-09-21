@@ -14,6 +14,7 @@ import com.compose.presentation.views.composeScreens.HomeScreen
 import com.compose.presentation.events.HomeEvent.*
 import com.compose.presentation.viewModels.HomeViewModel
 import com.compose.presentation.models.UserUiModel
+import com.compose.presentation.ui.theme.ChatAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -28,10 +29,12 @@ class HomeFragment : Fragment() {
         observeViewModelEvents()
         return ComposeView(requireContext()).apply {
             setContent {
-                HomeScreen(
-                    setIntent = homeViewModel::setIntent,
-                    viewState = homeViewModel.viewState.collectAsState()
-                )
+                ChatAppTheme {
+                    HomeScreen(
+                        setIntent = homeViewModel::setIntent,
+                        viewState = homeViewModel.viewState.collectAsState()
+                    )
+                }
             }
         }
     }

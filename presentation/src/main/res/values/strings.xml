@@ -42,6 +42,7 @@
     <string name="accept">OK</string>
     <string name="reject">No thanks</string>
     <string name="saved_user_failure_msg">Failed to get saved user information.</string>
+    <string name="log_in">LOG IN</string>
 
 
 </resources>

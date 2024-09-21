@@ -1,7 +1,5 @@
 package com.compose.presentation.intents
 
-import com.compose.domain.entities.User
-
 sealed class LoginIntent {
     data object Login:LoginIntent()
     data object NavigateToRegister:LoginIntent()

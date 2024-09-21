@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,36 +22,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.compose.presentation.R
 import com.compose.presentation.models.RecentChatUiModel
 import com.compose.presentation.models.UserUiModel
+import com.compose.presentation.ui.theme.SEMI_BOLD
+import com.compose.presentation.ui.theme.dark_gray
+import com.compose.presentation.ui.theme.light_blue
+import com.compose.presentation.ui.theme.primary_dark_blue
+import com.compose.presentation.ui.theme.white
 
 @Composable
 fun RecentChatCard(
     recentChat: RecentChatUiModel,
-    onChatSelected: (UserUiModel) -> Unit
+    onChatSelected: (UserUiModel) -> Unit,
 ) {
     Box(
         modifier = Modifier
-            .background(color = colorResource(R.color.white))
+            .background(colorScheme.white)
             .clickable { onChatSelected(recentChat.awayUser) }
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(
-                    color = colorResource(id = R.color.primary_dark_blue),
+                    color = colorScheme.primary_dark_blue,
                     width = 1.dp,
                     shape = RectangleShape
                 )
                 .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,
-
             ) {
             AsyncImage(
                 model = recentChat.awayUser.profilePicture,
@@ -61,8 +66,7 @@ fun RecentChatCard(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(color = colorResource(id = R.color.gray)),
-
+                    .background(colorScheme.light_blue),
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(10.dp))
@@ -75,23 +79,28 @@ fun RecentChatCard(
             )
             {
                 Text(
-                    text = recentChat.awayUser.username, color = colorResource(id = R.color.black),
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                    text = recentChat.awayUser.username,
+                    style = MaterialTheme.typography.headlineMedium
                 )
                 Text(
                     text = recentChat.recentMessage,
-                    color = colorResource(id = R.color.gray2),
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontFamily = FontFamily.SEMI_BOLD,
+                        color = colorScheme.dark_gray
+                    ),
                     maxLines = 1
                 )
             }
             Text(
                 text = recentChat.timestamp,
-                color = colorResource(id = R.color.gray2),
-                style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    color = colorScheme.dark_gray
+                ),
                 modifier = Modifier
                     .align(Alignment.Top)
-                    .padding(vertical = 10.dp)
+                    .padding(vertical = 8.dp)
+
             )
 
         }
