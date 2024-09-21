@@ -8,5 +8,5 @@ data class ChatViewState(
     val isSendEnabled: Boolean = false,
     val errorMsg: String? = null,
     val isLoading: Boolean = false,
-    val sendBtnContainerColor :Int = R.color.gray1
+    val sendBtnContainerColor :Int = R.color.gray
 )

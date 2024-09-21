@@ -14,6 +14,7 @@ import com.compose.presentation.events.LoginEvent
 import com.compose.presentation.views.composeScreens.LoginScreen
 import com.compose.presentation.viewModels.LoginViewModel
 import com.compose.presentation.models.UserUiModel
+import com.compose.presentation.ui.theme.ChatAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -29,10 +30,12 @@ class LoginFragment : Fragment() {
         observeViewModelEvents()
         return ComposeView(requireContext()).apply {
             setContent {
-                LoginScreen(
-                    viewState = loginViewModel.viewState.collectAsState(),
-                    setIntent = loginViewModel::setIntent,
-                )
+                ChatAppTheme {
+                    LoginScreen(
+                        viewState = loginViewModel.viewState.collectAsState(),
+                        setIntent = loginViewModel::setIntent,
+                    )
+                }
             }
         }
     }
@@ -40,20 +43,21 @@ class LoginFragment : Fragment() {
     private fun observeViewModelEvents() {
         lifecycleScope.launch {
             loginViewModel.event.collectLatest { event ->
-                when(event){
-                    is LoginEvent.LoginSuccess ->  navigateToHomeFragment(event.homeUser)
+                when (event) {
+                    is LoginEvent.LoginSuccess -> navigateToHomeFragment(event.homeUser)
                     is LoginEvent.NavigateToRegistration -> navigateToRegistration()
                 }
             }
         }
     }
+
     private fun navigateToRegistration() {
         val action = LoginFragmentDirections.actionLoginFragmentToRegistrationFragment()
         findNavController().navigate(action)
     }
 
     private fun navigateToHomeFragment(homeUser: UserUiModel) {
-        val action = LoginFragmentDirections.actionLoginFragmentToHomeFragment(homeUser =homeUser )
+        val action = LoginFragmentDirections.actionLoginFragmentToHomeFragment(homeUser = homeUser)
         findNavController().navigate(action)
     }
 }

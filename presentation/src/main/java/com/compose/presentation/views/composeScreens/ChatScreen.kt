@@ -1,6 +1,5 @@
 package com.compose.presentation.views.composeScreens
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,6 +18,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -26,7 +26,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,28 +38,29 @@ import com.compose.presentation.viewStates.ChatViewState
 import com.compose.presentation.views.composables.ChatInput
 import com.compose.presentation.views.composables.ChatMessageItem
 import com.compose.presentation.models.UserUiModel
+import com.compose.presentation.ui.theme.light_gray
+import com.compose.presentation.ui.theme.primary_dark_blue
+import com.compose.presentation.ui.theme.white
 
 @Composable
 fun ChatScreen(
     awayUser: UserUiModel,
     setIntent: (ChatIntent) -> Unit,
-    viewState: State<ChatViewState>
+    viewState: State<ChatViewState>,
 ) {
-    Column(modifier = Modifier.background(colorResource(id = R.color.gray))) {
+    Column(modifier = Modifier.background(colorScheme.light_gray)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(colorResource(id = R.color.primary_dark_blue))
-                .padding(vertical = 10.dp),
+                .background(colorScheme.primary_dark_blue)
+                .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = { setIntent(ChatIntent.BackToHome) }) {
                 Icon(
                     Icons.AutoMirrored.Default.ArrowBack,
                     contentDescription = stringResource(id = R.string.arrowBack),
-                    tint = colorResource(
-                        id = R.color.white
-                    )
+                    tint = colorScheme.white
                 )
             }
             AsyncImage(
@@ -70,17 +70,17 @@ fun ChatScreen(
                     awayUser.username
                 ),
                 modifier = Modifier
-                    .size(36.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
-                    .background(color = colorResource(id = R.color.white)),
+                    .background(colorScheme.white),
                 contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.Start)
             {
                 Text(
-                    text = awayUser.username, color = colorResource(id = R.color.white),
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    text = awayUser.username,
+                    style = MaterialTheme.typography.headlineMedium.copy(color = colorScheme.white)
                 )
             }
         }
@@ -88,10 +88,10 @@ fun ChatScreen(
             viewState.value.isLoading -> {
                 Spacer(modifier = Modifier.weight(1f))
                 CircularProgressIndicator(
-                    color = colorResource(id = R.color.primary_dark_blue),
+                    color = colorScheme.primary_dark_blue,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .padding(vertical = 5.dp)
+                        .padding(vertical = 8.dp)
                 )
                 Spacer(modifier = Modifier.weight(1f))
             }
@@ -101,11 +101,11 @@ fun ChatScreen(
                 Text(
                     text = stringResource(id = R.string.noRecentMessages),
                     letterSpacing = 2.sp,
-                    color = colorResource(id = R.color.primary_dark_blue),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .padding(vertical = 5.dp)
+                        .padding(vertical = 8.dp)
                 )
                 Spacer(modifier = Modifier.weight(1f))
             }

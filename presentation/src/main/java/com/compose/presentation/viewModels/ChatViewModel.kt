@@ -70,13 +70,13 @@ class ChatViewModel @Inject constructor(
             _viewState.value = _viewState.value.copy(
                 message = message,
                 isSendEnabled = true,
-                sendBtnContainerColor = R.color.primary_dark_blue
+                sendBtnContainerColor = R.color.blue
             )
         else
             _viewState.value = _viewState.value.copy(
                 message = message,
                 isSendEnabled = false,
-                sendBtnContainerColor = R.color.gray1
+                sendBtnContainerColor = R.color.gray
             )
     }
 
@@ -85,7 +85,7 @@ class ChatViewModel @Inject constructor(
             _viewState.value = _viewState.value.copy(
                 message = "",
                 isSendEnabled = false,
-                sendBtnContainerColor = R.color.gray1
+                sendBtnContainerColor = R.color.gray
             )
             val senderMessage = Message(
                 senderId = homeUser.userId,

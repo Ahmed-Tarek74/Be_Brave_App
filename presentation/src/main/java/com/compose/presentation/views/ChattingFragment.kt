@@ -14,6 +14,7 @@ import androidx.navigation.fragment.navArgs
 import com.compose.presentation.events.ChattingEvent.*
 import com.compose.presentation.views.composeScreens.ChatScreen
 import com.compose.presentation.models.UserUiModel
+import com.compose.presentation.ui.theme.ChatAppTheme
 import com.compose.presentation.viewModels.ChatViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -26,19 +27,22 @@ class ChattingFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         observeViewModelEvents()
         return ComposeView(requireContext()).apply {
             setContent {
-                ChatScreen(
-                    awayUser = args.awayUser,
-                    setIntent = viewModel::setIntent,
-                    viewState = viewModel.viewState.collectAsState()
-                )
+                ChatAppTheme {
+                    ChatScreen(
+                        awayUser = args.awayUser,
+                        setIntent = viewModel::setIntent,
+                        viewState = viewModel.viewState.collectAsState()
+                    )
+                }
             }
         }
     }
+
     private fun observeViewModelEvents() {
         lifecycleScope.launch {
             viewModel.event.collectLatest { event ->
@@ -48,6 +52,7 @@ class ChattingFragment : Fragment() {
             }
         }
     }
+
     private fun navigateToHomeScreen(homeUser: UserUiModel) {
         val action = ChattingFragmentDirections.actionChattingFragmentToHomeFragment(homeUser)
         findNavController().navigate(action)

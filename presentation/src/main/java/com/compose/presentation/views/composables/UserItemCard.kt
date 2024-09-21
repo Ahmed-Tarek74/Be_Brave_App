@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,31 +22,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.compose.presentation.R
 import com.compose.presentation.models.UserUiModel
+import com.compose.presentation.ui.theme.light_blue
+import com.compose.presentation.ui.theme.primary_dark_blue
+import com.compose.presentation.ui.theme.white
 
 @Composable
 fun UserItemCard(user: UserUiModel, onUserSelected: (UserUiModel) -> Unit) {
     Box(
         modifier = Modifier
-            .background(color = colorResource(R.color.white))
+            .background(colorScheme.white)
             .clickable { onUserSelected(user) }
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(
-                    color = colorResource(id = R.color.primary_dark_blue),
+                    color = colorScheme.primary_dark_blue,
                     width = 1.dp,
                     shape = RectangleShape
                 )
-                .padding(10.dp)
-               ,
+                .padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,
 
             ) {
@@ -55,16 +56,16 @@ fun UserItemCard(user: UserUiModel, onUserSelected: (UserUiModel) -> Unit) {
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(color = colorResource(id = R.color.blue)),
-                
+                    .background(colorScheme.light_blue),
+
                 contentScale = ContentScale.Crop
             )
             Spacer(modifier = Modifier.width(10.dp))
             Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.Start)
             {
                 Text(
-                    text = user.username, color = colorResource(id = R.color.black),
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    text = user.username,
+                    style = MaterialTheme.typography.headlineMedium
                 )
             }
 

@@ -14,6 +14,7 @@ import com.compose.presentation.events.SearchUsersEvent.*
 import com.compose.presentation.viewModels.SearchUsersViewModel
 import com.compose.presentation.views.composeScreens.SearchUsersScreen
 import com.compose.presentation.models.UserUiModel
+import com.compose.presentation.ui.theme.ChatAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -23,15 +24,17 @@ class SearchUsersFragment : Fragment() {
     private val viewModel: SearchUsersViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         observeViewModelEvents()
         return ComposeView(requireContext()).apply {
             setContent {
-                SearchUsersScreen(
-                    viewState = viewModel.viewState.collectAsState(),
-                    setIntent = viewModel::setIntent
-                )
+                ChatAppTheme {
+                    SearchUsersScreen(
+                        viewState = viewModel.viewState.collectAsState(),
+                        setIntent = viewModel::setIntent
+                    )
+                }
             }
         }
     }

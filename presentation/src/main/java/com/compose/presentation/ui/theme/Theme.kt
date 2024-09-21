@@ -1,4 +1,4 @@
-package com.compose.chatapp.ui.theme
+package com.compose.presentation.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -11,16 +11,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Black,
+    secondary = Blue,
+    tertiary = Pink,
+    background = primaryDarkBlue,
+    surface = primaryDarkBlue,
+    onPrimary =primaryDarkBlue,
+    onSecondary = Blue,
+    error = Red,
+    onErrorContainer = Pink,
+    onError = lightRed
 )
-
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
+    primary = Black,
+    secondary = Blue,
+    tertiary = Pink,
+    background = primaryDarkBlue,
+    surface = primaryDarkBlue,
+    onPrimary =primaryDarkBlue,
+    onSecondary = Blue,
+    error = Red,
+    onErrorContainer = Pink,
+    onError = lightRed
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),
@@ -49,7 +61,7 @@ fun ChatAppTheme(
     }
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = getTypography(),
         content = content
     )
 }

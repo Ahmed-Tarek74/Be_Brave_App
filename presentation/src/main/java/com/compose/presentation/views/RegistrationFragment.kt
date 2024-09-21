@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.compose.presentation.R
 import com.compose.presentation.events.RegistrationEvent.*
+import com.compose.presentation.ui.theme.ChatAppTheme
 import com.compose.presentation.viewModels.RegistrationViewModel
 import com.compose.presentation.views.composeScreens.RegistrationScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,14 +25,16 @@ class RegistrationFragment : Fragment() {
     private val registrationViewModel: RegistrationViewModel by viewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                RegistrationScreen(
-                    viewState = registrationViewModel.state.collectAsState(),
-                    setIntent = registrationViewModel::setIntent
-                )
+                ChatAppTheme {
+                    RegistrationScreen(
+                        viewState = registrationViewModel.state.collectAsState(),
+                        setIntent = registrationViewModel::setIntent
+                    )
+                }
             }
         }
     }
@@ -54,11 +57,13 @@ class RegistrationFragment : Fragment() {
                         ).show()
                         navigateToLogin()
                     }
+
                     BackToLogin -> navigateToLogin()
                 }
             }
         }
     }
+
     private fun navigateToLogin() {
         val action =
             RegistrationFragmentDirections.actionRegistrationFragmentToLoginFragment()

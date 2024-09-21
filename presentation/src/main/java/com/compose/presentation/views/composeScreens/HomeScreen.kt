@@ -18,13 +18,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -36,6 +37,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import com.compose.presentation.intents.HomeIntent.*
+import com.compose.presentation.ui.theme.gray
+import com.compose.presentation.ui.theme.primary_dark_blue
+import com.compose.presentation.ui.theme.white
 import com.compose.presentation.viewStates.HomeViewState.*
 import com.compose.presentation.views.composables.ErrorMsgCard
 import com.compose.presentation.views.composables.RecentChatCard
@@ -44,21 +48,22 @@ import com.compose.presentation.views.composables.RecentChatCard
 @Composable
 fun HomeScreen(
     setIntent: (HomeIntent) -> Unit,
-    viewState: State<HomeViewState>
+    viewState: State<HomeViewState>,
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 colors = TopAppBarColors(
-                    containerColor = colorResource(id = R.color.primary_dark_blue),
-                    scrolledContainerColor = colorResource(id = R.color.white),
-                    navigationIconContentColor = colorResource(id = R.color.primary_dark_blue),
-                    titleContentColor = colorResource(id = R.color.white),
-                    actionIconContentColor = colorResource(id = R.color.white)
+                    containerColor = colorScheme.primary_dark_blue,
+                    scrolledContainerColor = colorScheme.white,
+                    navigationIconContentColor = colorScheme.primary_dark_blue,
+                    titleContentColor = colorScheme.white,
+                    actionIconContentColor = colorScheme.white
                 ),
                 title = {
                     Text(
-                        stringResource(id = R.string.app_name),
+                        text = stringResource(id = R.string.app_name),
+                        style = MaterialTheme.typography.headlineLarge.copy(color = colorScheme.white)
                     )
                 },
                 actions = {
@@ -76,10 +81,8 @@ fun HomeScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(containerColor = colorResource(id = R.color.primary_dark_blue),
-                contentColor = colorResource(
-                    id = R.color.white
-                ),
+            FloatingActionButton(containerColor = colorScheme.primary_dark_blue,
+                contentColor = colorScheme.white,
                 onClick = { setIntent(StartNewChat) })
             {
                 Icon(
@@ -93,13 +96,13 @@ fun HomeScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .background(color = colorResource(id = R.color.white))
+                .background(color = colorScheme.white)
         ) {
             when (viewState.value) {
                 is Loading -> {
                     Spacer(modifier = Modifier.weight(1f))
                     CircularProgressIndicator(
-                        color = colorResource(id = R.color.primary_dark_blue),
+                        color = colorScheme.primary_dark_blue,
                         modifier = Modifier
                             .padding(5.dp)
                             .align(Alignment.CenterHorizontally)
@@ -112,6 +115,7 @@ fun HomeScreen(
                     ErrorMsgCard(errorMsg = (viewState.value as Failure).error)
                     Spacer(modifier = Modifier.weight(1f))
                 }
+
                 is Success -> {
                     val recentChats = (viewState.value as Success).recentChats
                     if (recentChats.isEmpty()) {
@@ -122,7 +126,7 @@ fun HomeScreen(
                                 .align(Alignment.CenterHorizontally),
                             textAlign = TextAlign.Center,
                             letterSpacing = 2.sp,
-                            color = colorResource(id = R.color.primary_dark_blue)
+                            color = colorScheme.primary_dark_blue
                         )
                         Spacer(modifier = Modifier.weight(1f))
                     } else {
@@ -130,7 +134,7 @@ fun HomeScreen(
                             elevation = CardDefaults.cardElevation(defaultElevation = 5.dp),
                             border = BorderStroke(
                                 width = 1.dp,
-                                color = colorResource(id = R.color.gray)
+                                color = colorScheme.gray
                             ),
                             shape = RoundedCornerShape(25.dp), modifier = Modifier
 

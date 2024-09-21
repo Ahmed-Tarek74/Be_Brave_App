@@ -1,28 +1,32 @@
 package com.compose.presentation.views.composeScreens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.compose.presentation.R
 import com.compose.presentation.intents.RegistrationIntent
 import com.compose.presentation.intents.RegistrationIntent.*
+import com.compose.presentation.ui.theme.ChatAppTheme
+import com.compose.presentation.ui.theme.gray
+import com.compose.presentation.ui.theme.primary_dark_blue
+import com.compose.presentation.ui.theme.white
 import com.compose.presentation.viewStates.RegistrationViewState
 import com.compose.presentation.views.composables.ErrorMsgCard
 import com.compose.presentation.views.composables.LoadingDialog
@@ -30,62 +34,79 @@ import com.compose.presentation.views.composables.LoadingDialog
 @Composable
 fun RegistrationScreen(
     viewState: State<RegistrationViewState>,
-    setIntent: (RegistrationIntent) -> Unit
+    setIntent: (RegistrationIntent) -> Unit,
 ) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .background(color = colorScheme.white)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        IconButton(
-            onClick = { setIntent(NavigateToLogin) },
-            modifier = Modifier.align(Alignment.TopStart)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = stringResource(id = R.string.backToLogin)
+            IconButton(
+                onClick = { setIntent(NavigateToLogin) },
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(id = R.string.backToLogin)
+                )
+            }
+            Text(
+                text = stringResource(id = R.string.registration),
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .weight(1f)
             )
         }
-
-        Text(
-            text = stringResource(id = R.string.registration),
-            textAlign = TextAlign.Center,
-            style = TextStyle(
-                fontWeight = FontWeight.Bold
-            ),
-            letterSpacing = 2.sp,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 16.dp)
-        )
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 56.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(vertical = 24.dp)
         ) {
-            Spacer(modifier = Modifier.padding(20.dp))
             OutlinedTextField(
                 value = viewState.value.email,
                 onValueChange = { setIntent(EmailChanged(it)) },
                 maxLines = 1,
-                label = { Text(stringResource(id = R.string.email)) },
+                label = {
+                    Text(
+                        stringResource(id = R.string.email),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                },
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.padding(15.dp))
+            Spacer(modifier = Modifier.padding(16.dp))
             OutlinedTextField(
                 value = viewState.value.username,
                 onValueChange = { setIntent(UsernameChanged(it)) },
                 maxLines = 1,
-                label = { Text(stringResource(R.string.username)) },
+                label = {
+                    Text(
+                        stringResource(R.string.username),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                },
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.padding(15.dp))
+            Spacer(modifier = Modifier.padding(16.dp))
             OutlinedTextField(
                 value = viewState.value.password,
                 onValueChange = { setIntent(PasswordChanged(it)) },
                 maxLines = 1,
-                label = { Text(stringResource(id = R.string.password)) },
+                label = {
+                    Text(
+                        stringResource(id = R.string.password),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                },
                 visualTransformation = viewState.value.passwordVisualTransformation,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {
@@ -98,50 +119,74 @@ fun RegistrationScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.padding(15.dp))
+            Spacer(modifier = Modifier.padding(16.dp))
             OutlinedTextField(
                 value = viewState.value.confirmationPassword,
                 onValueChange = { setIntent(ConfirmationPasswordChanged(it)) },
                 maxLines = 1,
-                label = { Text(stringResource(R.string.confirm_password)) },
-                visualTransformation =viewState.value.confirmationPasswordVisualTransformation,
+                label = {
+                    Text(
+                        stringResource(R.string.confirm_password),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                },
+                visualTransformation = viewState.value.confirmationPasswordVisualTransformation,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {
-                    IconButton(onClick = { setIntent(ConfirmationPasswordVisibilityChanged(viewState.value.isConfirmationPasswordVisible)) }) {
+                    IconButton(onClick = {
+                        setIntent(
+                            ConfirmationPasswordVisibilityChanged(
+                                viewState.value.isConfirmationPasswordVisible
+                            )
+                        )
+                    }) {
                         val image =
-                            painterResource(id =viewState.value.confirmationPasswordTrailingIcon)
+                            painterResource(id = viewState.value.confirmationPasswordTrailingIcon)
                         val description =
-                           stringResource(id = viewState.value.confirmationPasswordIconDescription)
+                            stringResource(id = viewState.value.confirmationPasswordIconDescription)
                         Icon(painter = image, contentDescription = description)
                     }
                 },
                 modifier = Modifier.fillMaxWidth()
             )
-            Spacer(modifier = Modifier.padding(20.dp))
+            Spacer(modifier = Modifier.padding(24.dp))
 
-            viewState.value.errorMessage?.let { errorMsg->
+            viewState.value.errorMessage?.let { errorMsg ->
                 ErrorMsgCard(errorMsg = errorMsg)
             }
             if (viewState.value.isLoading) {
-                LoadingDialog(loadingMsg = stringResource(id = R.string.signingIn)) {}
+                LoadingDialog(loadingMsg = stringResource(id = R.string.signingIn))
             }
             Button(
                 onClick = { setIntent(Register) },
                 enabled = viewState.value.isRegisterEnabled,
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonColors(
-                    colorResource(id = R.color.primary_dark_blue), Color.White,
-                    colorResource(id = R.color.gray1), Color.White
+                    colorScheme.primary_dark_blue, colorScheme.white,
+                    colorScheme.gray, colorScheme.white
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 12.dp)
+                    .padding(vertical = 8.dp)
             ) {
-                Text(stringResource(R.string.register), modifier = Modifier.padding(14.dp))
+                Text(
+                    text = stringResource(R.string.register),
+                    style = MaterialTheme.typography.headlineMedium.copy(color = colorScheme.white),
+                    modifier = Modifier.padding(14.dp)
+                )
             }
         }
     }
 }
 
+@Composable
+@Preview(showBackground = true)
+fun RegistrationScreenPreview() {
+    ChatAppTheme {
+        RegistrationScreen(viewState = remember {
+            mutableStateOf(RegistrationViewState())
+        }) {}
+    }
+}
 
 

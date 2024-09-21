@@ -17,20 +17,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.compose.presentation.R
+import com.compose.presentation.ui.theme.primary_dark_blue
+import com.compose.presentation.ui.theme.white
 
 @Composable
-fun LoadingDialog(loadingMsg:String,onDismiss: () -> Unit){
-    Dialog(onDismissRequest = onDismiss ){
+fun LoadingDialog(loadingMsg: String, onDismiss: () -> Unit = {}) {
+    Dialog(onDismissRequest = onDismiss) {
         Box(
             modifier = Modifier
                 .size(200.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.white)
         ) {
             Column(
                 modifier = Modifier
@@ -39,10 +41,16 @@ fun LoadingDialog(loadingMsg:String,onDismiss: () -> Unit){
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CircularProgressIndicator(color = colorResource(id = R.color.primary_dark_blue))
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary_dark_blue)
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = loadingMsg, color = colorResource(id = R.color.black),style = MaterialTheme.typography.headlineSmall)
+                Text(text = loadingMsg, style = MaterialTheme.typography.headlineLarge)
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun LoadingDialogPreview() {
+    LoadingDialog(loadingMsg = stringResource(id = R.string.signingIn))
 }
